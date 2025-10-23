@@ -1,0 +1,38 @@
+{
+  "name": "x402-somnia-game",
+  "version": "1.0.0",
+  "description": "X402 Payment Protocol Demo Game on Somnia Testnet",
+  "main": "server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev:full": "concurrently \"npm run server\" \"npm run treasure-api\" \"npm run client\"",
+    "server": "node server.js",
+    "treasure-api": "node treasure-api.js",
+    "client": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "thirdweb": "^5.0.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "x402",
+    "payments",
+    "thirdweb",
+    "somnia",
+    "blockchain",
+    "game",
+    "demo"
+  ],
+  "author": "X402 Demo Team",
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X402 Treasure Hunt - Somnia Testnet Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: monospace;
+            background: white;
+            min-height: 100vh;
+            color: black;
+        }
+
+        .header {
+            background: black;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: normal;
+        }
+
+        .header p {
+            font-size: 1rem;
+        }
+
+        .game-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 2rem auto;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        .sidebar {
+            width: 300px;
+            border: 1px solid black;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .game-board {
+            flex: 1;
+            border: 1px solid black;
+            padding: 1.5rem;
+            position: relative;
+            min-height: 600px;
+        }
+
+        .wallet-section {
+            margin-bottom: 2rem;
+        }
+
+        .wallet-button {
+            width: 100%;
+            padding: 1rem;
+            background: black;
+            border: 1px solid black;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: monospace;
+        }
+
+        .wallet-button:hover {
+            background: white;
+            color: black;
+        }
+
+        .wallet-button:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .wallet-info {
+            border: 1px solid black;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stats {
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid black;
+        }
+
+        .achievements {
+            margin-bottom: 2rem;
+        }
+
+        .achievement {
+            background: black;
+            color: white;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .purchased-treasures {
+            margin-bottom: 2rem;
+        }
+
+        .purchased-treasure {
+            border: 1px solid black;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: white;
+            cursor: pointer;
+        }
+
+        .purchased-treasure:hover {
+            background: black;
+            color: white;
+        }
+
+        .purchased-treasure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .purchased-treasure-details {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.3rem;
+        }
+
+        .purchased-treasure-content {
+            font-size: 0.85rem;
+            font-style: italic;
+            border-top: 1px solid #ccc;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .treasure {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: white;
+            border: 2px solid black;
+        }
+
+        .treasure:hover {
+            background: black;
+            color: white;
+        }
+
+        .treasure.revealed {
+            background: black;
+            color: white;
+        }
+
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border: 2px solid black;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .payment-details {
+            border: 1px solid black;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        .payment-button {
+            background: black;
+            border: 1px solid black;
+            padding: 1rem 2rem;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            font-family: monospace;
+        }
+
+        .payment-button:hover {
+            background: white;
+            color: black;
+        }
+
+        .close-button {
+            background: black;
+            border: 1px solid black;
+            padding: 0.5rem 1rem;
+            color: white;
+            cursor: pointer;
+            float: right;
+            margin-bottom: 1rem;
+            font-family: monospace;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            border: 3px solid #ccc;
+            border-top: 3px solid black;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .network-info {
+            border: 1px solid black;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .reset-button {
+            width: 100%;
+            padding: 0.8rem;
+            background: black;
+            border: 1px solid black;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-family: monospace;
+        }
+
+        .reset-button:hover {
+            background: white;
+            color: black;
+        }
+
+        .status-log {
+            margin-bottom: 2rem;
+        }
+
+        .status-log h3 {
+            margin-bottom: 1rem;
+        }
+
+        .status-messages {
+            border: 1px solid black;
+            height: 200px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            background: white;
+        }
+
+        .status-message {
+            margin-bottom: 0.25rem;
+            padding: 0.25rem;
+        }
+
+        .status-message.success {
+            background: black;
+            color: white;
+        }
+
+        .status-message.error {
+            border: 1px solid black;
+            background: white;
+        }
+
+        .status-message.payment {
+            background: #f0f0f0;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏴‍☠️ X402 Treasure Hunt</h1>
+        <p>Discover hidden treasures using X402 payments on Somnia Testnet</p>
+    </div>
+
+    <div class="game-container">
+        <div class="sidebar">
+            <div class="wallet-section">
+                <h3>🔗 Wallet Connection</h3>
+                <button id="connectWallet" class="wallet-button">Connect Wallet</button>
+                <div id="walletInfo" class="wallet-info" style="display: none;">
+                    <div><strong>Address:</strong> <span id="walletAddress"></span></div>
+                    <div><strong>Balance:</strong> <span id="walletBalance"></span> STT</div>
+                </div>
+            </div>
+
+            <div class="network-info">
+                <h4>🌐 Network Info</h4>
+                <div><strong>Chain:</strong> Somnia Testnet</div>
+                <div><strong>Chain ID:</strong> 50312</div>
+                <div><strong>RPC:</strong> dream-rpc.somnia.network</div>
+                <div><strong>Explorer:</strong> <a href="https://shannon-explorer.somnia.network/" target="_blank" style="color: #feca57;">Shannon Explorer</a></div>
+            </div>
+
+            <div class="stats">
+                <h3>📊 Your Progress</h3>
+                <div class="stat-item">
+                    <span>Treasures Found:</span>
+                    <span id="treasuresFound">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Total Spent:</span>
+                    <span id="totalSpent">0 STT</span>
+                </div>
+                <div class="stat-item">
+                    <span>Payment Cost:</span>
+                    <span>1 STT per treasure</span>
+                </div>
+            </div>
+
+            <div class="status-messages">
+                <h3>📋 Status Log</h3>
+                <div id="statusLog" style="background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 10px; max-height: 200px; overflow-y: auto; font-size: 0.9rem;">
+                    <div style="opacity: 0.5; text-align: center;">Game ready - Connect wallet to start</div>
+                </div>
+            </div>
+
+            <div class="achievements">
+                <h3>🏆 Achievements</h3>
+                <div id="achievementsList">
+                    <div style="opacity: 0.5; text-align: center; padding: 1rem;">No achievements yet</div>
+                </div>
+            </div>
+
+            <div class="purchased-treasures">
+                <h3>💎 Purchased Treasures</h3>
+                <div id="purchasedTreasuresList">
+                    <div style="opacity: 0.5; text-align: center; padding: 1rem;">No treasures purchased yet</div>
+                </div>
+            </div>
+
+            <button id="resetGame" class="reset-button">🔄 Reset Game</button>
+        </div>
+
+        <div class="game-board">
+            <h3>🗺️ Treasure Map</h3>
+            <p style="margin-bottom: 1rem; opacity: 0.8;">Click on treasures to discover them using X402 payments</p>
+            <div id="gameMap" style="position: relative; width: 100%; height: 500px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden;">
+                <!-- Treasures will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="payment-modal">
+        <div class="modal-content">
+            <button class="close-button" onclick="closePaymentModal()">✕</button>
+            <h3>💰 X402 Payment Required</h3>
+            <div class="payment-details">
+                <div><strong>Treasure:</strong> <span id="paymentTreasureName"></span></div>
+                <div><strong>Cost:</strong> <span id="paymentAmount"></span> STT</div>
+                <div><strong>Recipient:</strong> <span id="paymentRecipient"></span></div>
+                <div><strong>Chain:</strong> Somnia Testnet (50312)</div>
+            </div>
+            <div class="loading" id="paymentLoading">
+                <div class="spinner"></div>
+                <p>Processing payment...</p>
+            </div>
+            <div id="paymentButtons">
+                <button class="payment-button" onclick="makePayment()">💳 Pay with Wallet</button>
+                <button class="payment-button" onclick="closePaymentModal()">❌ Cancel</button>
+            </div>
+            <div id="paymentResult" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+</body>
+</html>
