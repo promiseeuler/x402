@@ -24,7 +24,13 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['thirdweb']
+    include: [
+      'thirdweb',
+      'thirdweb/chains',
+      'thirdweb/wallets',
+      'thirdweb/utils'
+    ],
+    exclude: ['@walletconnect/ethereum-provider']
   },
   define: {
     global: 'globalThis'

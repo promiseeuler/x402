@@ -1,7 +1,7 @@
-import { createThirdwebClient, getContract, prepareContractCall, sendTransaction, prepareTransaction } from 'https://esm.sh/thirdweb@5.0.0';
-import { defineChain } from 'https://esm.sh/thirdweb@5.0.0/chains';
-import { createWallet, injectedProvider } from 'https://esm.sh/thirdweb@5.0.0/wallets';
-import { toWei } from 'https://esm.sh/thirdweb@5.0.0/utils';
+import { createThirdwebClient, getContract, prepareContractCall, sendTransaction, prepareTransaction } from 'thirdweb';
+import { defineChain } from 'thirdweb/chains';
+import { createWallet, injectedProvider } from 'thirdweb/wallets';
+import { toWei } from 'thirdweb/utils';
 
 // Helper function to convert wei to ether
 function fromWei(wei, decimals = 18) {
@@ -28,7 +28,7 @@ const somniaTestnet = defineChain({
 
 // Initialize Thirdweb client (you'll need to replace with your actual client ID)
 const client = createThirdwebClient({
-  clientId: '68c92577f729e825d403edf874d5d314', // Using the actual client ID from .env
+  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || 'your-client-id-here', // Load from environment variables
 });
 
 // Game state
@@ -256,7 +256,16 @@ async function loadGameState() {
       gameState.treasures = [
         { id: 'treasure_1', x: 20, y: 30, name: 'Golden Compass', description: 'A mystical compass that points to hidden riches' },
         { id: 'treasure_2', x: 60, y: 20, name: 'Crystal of Wisdom', description: 'An ancient crystal with swirling magical energies' },
-        { id: 'treasure_3', x: 80, y: 70, name: 'Phoenix Feather', description: 'A shimmering feather from an ancient phoenix' }
+        { id: 'treasure_3', x: 80, y: 70, name: 'Phoenix Feather', description: 'A shimmering feather from an ancient phoenix' },
+        { id: 'treasure_4', x: 15, y: 60, name: 'Dragon Scale Shield', description: 'An impenetrable shield forged from ancient dragon scales' },
+        { id: 'treasure_5', x: 45, y: 80, name: 'Moonstone Amulet', description: 'A luminous amulet that glows with lunar energy' },
+        { id: 'treasure_6', x: 75, y: 15, name: 'Thunderbolt Spear', description: 'A legendary spear crackling with electric power' },
+        { id: 'treasure_7', x: 90, y: 45, name: 'Emerald of Life', description: 'A vibrant emerald pulsing with healing energy' },
+        { id: 'treasure_8', x: 35, y: 25, name: 'Shadow Cloak', description: 'A mysterious cloak that bends light and shadow' },
+        { id: 'treasure_9', x: 55, y: 55, name: 'Frost Crown', description: 'A crystalline crown radiating eternal winter' },
+        { id: 'treasure_10', x: 25, y: 85, name: 'Starlight Orb', description: 'A celestial orb containing the essence of distant stars' },
+        { id: 'treasure_11', x: 70, y: 40, name: 'Ancient Tome', description: 'A weathered book containing forgotten knowledge' },
+        { id: 'treasure_12', x: 85, y: 75, name: 'Ruby of Passion', description: 'A fiery ruby that burns with eternal flame' }
       ];
       
       renderTreasures();

@@ -87,6 +87,141 @@ const treasureDatabase = {
       enchantment: 'Fire Resistance +100%',
       origin: 'Gifted by the Phoenix of Mount Olympus'
     }
+  },
+  'treasure_4': {
+    id: 'treasure_4',
+    name: 'Dragon Scale Shield',
+    description: 'An impenetrable shield forged from the scales of an ancient dragon.',
+    rarity: 'Legendary',
+    value: 1200,
+    coordinates: { x: 450, y: 280 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The shield echoes: "Protection comes to the brave-hearted."',
+    hiddenAttributes: {
+      magicalPower: 'Ultimate Defense',
+      enchantment: 'Damage Reduction +75%',
+      origin: 'Forged in the fires of Mount Dragonspire'
+    }
+  },
+  'treasure_5': {
+    id: 'treasure_5',
+    name: 'Moonstone Amulet',
+    description: 'A shimmering amulet that channels the power of the moon.',
+    rarity: 'Epic',
+    value: 800,
+    coordinates: { x: 200, y: 400 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The moonstone glows: "Night reveals what day conceals."',
+    hiddenAttributes: {
+      magicalPower: 'Lunar Magic',
+      enchantment: 'Night Vision +100%',
+      origin: 'Blessed by the Moon Goddess Selene'
+    }
+  },
+  'treasure_6': {
+    id: 'treasure_6',
+    name: 'Thunderbolt Spear',
+    description: 'A legendary spear that crackles with the power of lightning.',
+    rarity: 'Mythical',
+    value: 1800,
+    coordinates: { x: 380, y: 120 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The spear thunders: "Strike swift as lightning, true as thunder."',
+    hiddenAttributes: {
+      magicalPower: 'Lightning Strike',
+      enchantment: 'Electric Damage +200%',
+      origin: 'Wielded by Zeus himself in ancient times'
+    }
+  },
+  'treasure_7': {
+    id: 'treasure_7',
+    name: 'Emerald of Life',
+    description: 'A vibrant emerald that pulses with the essence of nature.',
+    rarity: 'Epic',
+    value: 900,
+    coordinates: { x: 80, y: 180 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The emerald whispers: "Life finds a way through all obstacles."',
+    hiddenAttributes: {
+      magicalPower: 'Nature Healing',
+      enchantment: 'Health Regeneration +50%',
+      origin: 'Grown in the heart of the Eternal Forest'
+    }
+  },
+  'treasure_8': {
+    id: 'treasure_8',
+    name: 'Shadow Cloak',
+    description: 'A mysterious cloak that bends light and shadow to its will.',
+    rarity: 'Legendary',
+    value: 1100,
+    coordinates: { x: 320, y: 320 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The shadows murmur: "Invisibility is the greatest weapon."',
+    hiddenAttributes: {
+      magicalPower: 'Shadow Manipulation',
+      enchantment: 'Stealth +90%',
+      origin: 'Woven by the Shadow Weavers of the Void'
+    }
+  },
+  'treasure_9': {
+    id: 'treasure_9',
+    name: 'Frost Crown',
+    description: 'A crown of eternal ice that never melts, radiating cold power.',
+    rarity: 'Mythical',
+    value: 2000,
+    coordinates: { x: 250, y: 50 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The crown chills: "Rule with the calm of winter, the power of ice."',
+    hiddenAttributes: {
+      magicalPower: 'Ice Dominion',
+      enchantment: 'Frost Damage +150%',
+      origin: 'Forged in the Frozen Throne of the Ice Queen'
+    }
+  },
+  'treasure_10': {
+    id: 'treasure_10',
+    name: 'Starlight Orb',
+    description: 'A celestial orb containing the concentrated light of a thousand stars.',
+    rarity: 'Legendary',
+    value: 1300,
+    coordinates: { x: 420, y: 380 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The stars sing: "Light conquers all darkness, hope conquers all despair."',
+    hiddenAttributes: {
+      magicalPower: 'Stellar Energy',
+      enchantment: 'Light Magic +80%',
+      origin: 'Gifted by the Star Council of the Cosmos'
+    }
+  },
+  'treasure_11': {
+    id: 'treasure_11',
+    name: 'Ancient Tome',
+    description: 'A weathered book containing spells and secrets from the dawn of magic.',
+    rarity: 'Epic',
+    value: 700,
+    coordinates: { x: 180, y: 300 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The tome reveals: "Magic is not power, but understanding."',
+    hiddenAttributes: {
+      magicalPower: 'Arcane Knowledge',
+      enchantment: 'Spell Power +40%',
+      origin: 'Written by the first Archmage Merlin'
+    }
+  },
+  'treasure_12': {
+    id: 'treasure_12',
+    name: 'Ruby of Passion',
+    description: 'A fiery ruby that burns with the intensity of pure emotion.',
+    rarity: 'Epic',
+    value: 850,
+    coordinates: { x: 350, y: 250 },
+    discoveredAt: new Date().toISOString(),
+    secretMessage: 'The ruby blazes: "Passion fuels the greatest achievements."',
+    hiddenAttributes: {
+      magicalPower: 'Emotional Amplification',
+      enchantment: 'Critical Hit +60%',
+      origin: 'Formed in the heart of a volcano by pure love'
+    }
   }
 };
 
