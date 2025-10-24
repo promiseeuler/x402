@@ -1,0 +1,30 @@
+{
+  "name": "x402-facilitator-demo",
+  "version": "1.0.0",
+  "description": "Demo implementation of an X402 facilitator server",
+  "main": "facilitator.js",
+  "scripts": {
+    "start": "node facilitator.js",
+    "dev": "nodemon facilitator.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "x402",
+    "facilitator",
+    "payment",
+    "blockchain",
+    "http-402"
+  ],
+  "author": "X402 Demo",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

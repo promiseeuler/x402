@@ -1,0 +1,31 @@
+{
+  "name": "x402-resource-server-demo",
+  "version": "1.0.0",
+  "description": "Demo resource server that uses X402 facilitator for payment verification",
+  "main": "resource-server.js",
+  "scripts": {
+    "start": "node resource-server.js",
+    "dev": "nodemon resource-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "x402",
+    "resource-server",
+    "payment",
+    "api",
+    "http-402"
+  ],
+  "author": "X402 Demo",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

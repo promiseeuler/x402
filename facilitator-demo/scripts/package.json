@@ -1,0 +1,31 @@
+{
+  "name": "x402-facilitator-demo-scripts",
+  "version": "1.0.0",
+  "description": "Demo scripts for X402 Facilitator workflow",
+  "main": "start-all.js",
+  "scripts": {
+    "start": "node start-all.js",
+    "start:install": "node start-all.js --install",
+    "start:demo": "node start-all.js --demo",
+    "start:full": "node start-all.js --install --demo",
+    "demo": "node demo.js",
+    "demo:interactive": "node demo.js --interactive",
+    "stop": "echo 'Use Ctrl+C to stop services'",
+    "help": "node start-all.js --help"
+  },
+  "keywords": [
+    "x402",
+    "facilitator",
+    "payment",
+    "demo",
+    "blockchain"
+  ],
+  "author": "X402 Demo",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
