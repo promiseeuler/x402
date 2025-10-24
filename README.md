@@ -306,7 +306,7 @@ If you need to manually add Somnia Testnet:
 
 ```json
 {
-  "chainId": "0xC458",
+  "chainId": "0xc488",
   "chainName": "Somnia Testnet",
   "rpcUrls": ["https://dream-rpc.somnia.network"],
   "nativeCurrency": {
@@ -325,14 +325,6 @@ If you need to manually add Somnia Testnet:
 - Monitor terminal output for server-side issues
 - Use API documentation at `http://localhost:4000/api/docs`
 - Test API endpoints individually before frontend integration
-
-## Resources
-
-- [X402 Protocol Specification](https://github.com/x402-protocol/x402-protocol)
-- [Thirdweb Documentation](https://portal.thirdweb.com/)
-- [Somnia Network](https://somnia.network/)
-- [Shannon Explorer](https://shannon-explorer.somnia.network/)
-- [Vite Documentation](https://vitejs.dev/)
 
 ## Contributing
 
