@@ -1,0 +1,6 @@
+{
+  "address": "0xDF3A8d0Aad50F2117A448b6B970f5Cc94db62e40",
+  "network": "SOMNIA_TESTNET",
+  "encryptedPrivateKey": "{\"address\":\"df3a8d0aad50f2117a448b6b970f5cc94db62e40\",\"id\":\"71f098cb-3c60-42f3-b64b-208430f00feb\",\"version\":3,\"Crypto\":{\"cipher\":\"aes-128-ctr\",\"cipherparams\":{\"iv\":\"d97eed7a1cdddfe09b54d96bca0d9cb2\"},\"ciphertext\":\"1d373376c801e1506c7a2f53ff58c7f68a373746edce41ab861ebc65703de188\",\"kdf\":\"scrypt\",\"kdfparams\":{\"salt\":\"71cba6e5863356a0bbf87bc979aa173091f7b0c7ad234e3d99c1339e44f2b6e0\",\"n\":131072,\"dklen\":32,\"p\":1,\"r\":8},\"mac\":\"b8ecef01c83dcef90b349b1876f8e92ddc0d2c26c005ab697bfe9b4f66e1644e\"},\"x-ethers\":{\"client\":\"ethers/6.15.0\",\"gethFilename\":\"UTC--2025-10-25T23-02-06.0Z--df3a8d0aad50f2117a448b6b970f5cc94db62e40\",\"path\":\"m/44'/60'/0'/0/0\",\"locale\":\"en\",\"mnemonicCounter\":\"57d885f81b2da4143abda30cdc37ea63\",\"mnemonicCiphertext\":\"93ea698c1834b7d60ba9aa4998cd8119\",\"version\":\"0.1\"}}",
+  "createdAt": "2025-10-25T23:02:06.123Z"
+}
