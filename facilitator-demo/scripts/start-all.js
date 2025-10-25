@@ -167,7 +167,7 @@ class ServiceManager {
    * Start all services
    */
   async startAll(options = {}) {
-    const { installDeps = false, runClient = false } = options;
+    const { installDeps = false, runClient = false, startFrontend = false } = options;
     
     try {
       console.log('🎯 X402 Facilitator Demo - Starting All Services');
@@ -179,14 +179,18 @@ class ServiceManager {
         await this.installDependencies('facilitator-server');
         await this.installDependencies('resource-server');
         await this.installDependencies('client-example');
+        if (startFrontend) {
+          await this.installDependencies('web-frontend');
+        }
         console.log('✅ All dependencies installed\n');
       } else {
         // Check if dependencies are installed
         const facilitatorDeps = this.checkDependencies('facilitator-server');
         const resourceDeps = this.checkDependencies('resource-server');
         const clientDeps = this.checkDependencies('client-example');
+        const frontendDeps = startFrontend ? this.checkDependencies('web-frontend') : true;
         
-        if (!facilitatorDeps || !resourceDeps || !clientDeps) {
+        if (!facilitatorDeps || !resourceDeps || !clientDeps || !frontendDeps) {
           console.log('⚠️  Some dependencies may be missing. Run with --install to install them.\n');
         }
       }
@@ -215,11 +219,29 @@ class ServiceManager {
       // Wait a moment for resource server to fully start
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Start frontend server if requested
+      if (startFrontend) {
+        console.log('\n🌐 Starting web frontend...');
+        await this.startService(
+          'Web Frontend',
+          'web-frontend',
+          'node',
+          ['server.js'],
+          3005
+        );
+        
+        // Wait a moment for frontend to fully start
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+      
       console.log('\n✅ All services started successfully!');
       console.log('\n🔗 Service URLs:');
       console.log('   Facilitator:     http://localhost:3003');
       console.log('   Resource Server: http://localhost:3004');
       console.log('   API Catalog:     http://localhost:3004/api/catalog');
+      if (startFrontend) {
+        console.log('   Web Frontend:    http://localhost:3005');
+      }
       
       console.log('\n📚 Documentation:');
       console.log('   Main README:     ./docs/README.md');
@@ -288,7 +310,8 @@ if (require.main === module) {
   // Parse command line arguments
   const options = {
     installDeps: args.includes('--install') || args.includes('-i'),
-    runClient: args.includes('--demo') || args.includes('-d')
+    runClient: args.includes('--demo') || args.includes('-d'),
+    startFrontend: args.includes('--frontend') || args.includes('-f')
   };
   
   if (args.includes('--help') || args.includes('-h')) {
@@ -299,13 +322,15 @@ if (require.main === module) {
     console.log('Options:');
     console.log('  --install, -i    Install dependencies before starting');
     console.log('  --demo, -d       Run client demo after starting services');
+    console.log('  --frontend, -f   Start web frontend server (port 3005)');
     console.log('  --help, -h       Show this help message');
     console.log('');
     console.log('Examples:');
     console.log('  node start-all.js                # Start all services');
     console.log('  node start-all.js --install      # Install deps and start');
     console.log('  node start-all.js --demo         # Start services and run demo');
-    console.log('  node start-all.js -i -d          # Install, start, and demo');
+    console.log('  node start-all.js --frontend     # Start services and web frontend');
+    console.log('  node start-all.js -i -d -f       # Install, start, demo, and frontend');
     process.exit(0);
   }
   

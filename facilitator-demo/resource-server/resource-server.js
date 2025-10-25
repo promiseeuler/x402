@@ -91,12 +91,16 @@ const requirePayment = async (req, res, next) => {
   
   try {
     // Parse payment payload from header
-    const paymentPayload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString());
+    console.log('🔍 Raw payment header:', paymentHeader);
+    const decodedPayload = Buffer.from(paymentHeader, 'base64').toString();
+    console.log('🔍 Decoded payload string:', decodedPayload);
+    const paymentPayload = JSON.parse(decodedPayload);
     console.log('💳 Payment received:', {
       scheme: paymentPayload.scheme,
       amount: paymentPayload.amount,
       token: paymentPayload.token
     });
+    console.log('💳 Full payment payload:', paymentPayload);
     
     // Verify payment with facilitator
     const verificationResponse = await axios.post(`${FACILITATOR_URL}/verify`, {

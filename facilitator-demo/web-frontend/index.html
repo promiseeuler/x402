@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X402 Facilitator Demo - Testing Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            color: #000000;
+        }
+
+        .header {
+            background: #000000;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ecf0f1;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab:last-child {
+            margin-right: 0;
+        }
+
+        .tab.active {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #000000;
+        }
+
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cccccc;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #000000;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #000000;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            background: #333333;
+        }
+
+        .btn-success {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-warning {
+            background: #cccccc;
+            color: #000000;
+        }
+
+        .btn-danger {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .response.success {
+            background: #d5f4e6;
+            border: 1px solid #27ae60;
+            color: #1e8449;
+        }
+
+        .response.error {
+            background: #fadbd8;
+            border: 1px solid #e74c3c;
+            color: #c0392b;
+        }
+
+        .response.info {
+            background: #d6eaf8;
+            border: 1px solid #3498db;
+            color: #2471a3;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #27ae60;
+        }
+
+        .status-offline {
+            background: #e74c3c;
+        }
+
+        .status-checking {
+            background: #f39c12;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #000000;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            color: #000000;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+        }
+
+        .workflow-step {
+            background: white;
+            border: 2px solid #cccccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            color: #000000;
+        }
+
+        .workflow-step.completed {
+            border-color: #000000;
+            background: #ffffff;
+        }
+
+        .workflow-step.active {
+            border-color: #000000;
+            background: #f5f5f5;
+        }
+
+        .workflow-step.error {
+            border-color: #000000;
+            background: #cccccc;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #3498db;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .step-number.completed {
+            background: #27ae60;
+        }
+
+        .step-number.error {
+            background: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 X402 Facilitator Demo</h1>
+            <p>Interactive Testing Interface for Payment Protocol Components</p>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview', event)">📊 Overview</button>
+                <button class="tab" onclick="showTab('facilitator', event)">🏦 Facilitator</button>
+                <button class="tab" onclick="showTab('resource', event)">🔒 Resource Server</button>
+                <button class="tab" onclick="showTab('client', event)">💳 Client Demo</button>
+                <button class="tab" onclick="showTab('workflow', event)">🔄 Full Workflow</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="section">
+                    <h3>🎯 Service Status</h3>
+                    <div class="grid">
+                        <div>
+                            <p><span id="facilitator-status" class="status-indicator status-checking"></span><strong>Facilitator Server:</strong> <span id="facilitator-url">http://localhost:3003</span></p>
+                            <p><span id="resource-status" class="status-indicator status-checking"></span><strong>Resource Server:</strong> <span id="resource-url">http://localhost:3004</span></p>
+                        </div>
+                        <div>
+                            <button class="btn" onclick="checkAllServices()">🔄 Check All Services</button>
+                            <button class="btn btn-success" onclick="runQuickDemo()">⚡ Quick Demo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📋 Available Resources</h3>
+                    <div id="resource-catalog">
+                        <p>Loading resource catalog...</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📖 How It Works</h3>
+                    <p>The X402 Facilitator Demo showcases a payment protocol where:</p>
+                    <ul style="margin: 15px 0 0 20px; line-height: 1.6;">
+                        <li><strong>Clients</strong> discover and access paid resources</li>
+                        <li><strong>Resource Servers</strong> protect content behind payment requirements</li>
+                        <li><strong>Facilitators</strong> verify and settle payments securely</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Facilitator Tab -->
+            <div id="facilitator" class="tab-content">
+                <div class="section">
+                    <h3>🔍 Payment Verification</h3>
+                    <div class="form-group">
+                        <label>Payment Scheme:</label>
+                        <select id="verify-scheme">
+                            <option value="transferWithAuthorization">Transfer with Authorization</option>
+                            <option value="directTransfer">Direct Transfer</option>
+                        </select>
+                    </div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Amount (in tokens):</label>
+                            <input type="number" id="verify-amount" value="1000000" placeholder="1000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Token Address:</label>
+                            <input type="text" id="verify-token" value="0xA0b86a33E6441b8dB4B2f8b8C4b4b4b4b4b4b4b4" placeholder="Token contract address">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Payload (JSON):</label>
+                        <textarea id="verify-payload" placeholder="Enter payment payload JSON...">{
+  "from": "0x1234567890123456789012345678901234567890",
+  "to": "0x742d35Cc6634C0532925a3b8D4b4b4b4b4b4b4b4",
+  "value": "1000000",
+  "validAfter": "0",
+  "validBefore": "999999999999",
+  "nonce": "0x1234567890abcdef",
+  "signature": "0xabcdef1234567890..."
+}</textarea>
+                    </div>
+                    <button class="btn" onclick="testVerification()">🔍 Test Verification</button>
+                    <div id="verify-response" class="response" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h3>💰 Payment Settlement</h3>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Recipient Address:</label>
+                            <input type="text" id="settle-recipient" value="0x742d35Cc6634C0532925a3b8D4b4b4b4b4b4b4b4" placeholder="Recipient wallet address">
+                        </div>
+                        <div class="form-group">
+                            <label>Settlement Amount:</label>
+                            <input type="number" id="settle-amount" value="1000000" placeholder="1000000">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="testSettlement()">💰 Test Settlement</button>
+                    <div id="settle-response" class="response" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h3>🏥 Health Check</h3>
+                    <button class="btn btn-warning" onclick="testFacilitatorHealth()">🏥 Check Health</button>
+                    <div id="health-response" class="response" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Resource Server Tab -->
+            <div id="resource" class="tab-content">
+                <div class="section">
+                    <h3>📋 Resource Catalog</h3>
+                    <button class="btn" onclick="fetchResourceCatalog()">📋 Fetch Catalog</button>
+                    <div id="catalog-response" class="response" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h3>🔒 Access Protected Resource</h3>
+                    <div class="form-group">
+                        <label>Resource Endpoint:</label>
+                        <select id="resource-endpoint">
+                            <option value="/api/premium-data">Premium Data</option>
+                            <option value="/api/exclusive-report">Exclusive Report</option>
+                            <option value="/api/market-analysis">Market Analysis</option>
+                        </select>
+                    </div>
+                    <div class="grid">
+                        <div>
+                            <button class="btn btn-warning" onclick="testResourceWithoutPayment()">🚫 Access Without Payment</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-success" onclick="testResourceWithPayment()">💳 Access With Payment</button>
+                        </div>
+                    </div>
+                    <div id="resource-response" class="response" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h3>⚙️ Server Configuration</h3>
+                    <button class="btn" onclick="fetchResourceConfig()">⚙️ Get Configuration</button>
+                    <div id="config-response" class="response" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Client Demo Tab -->
+            <div id="client" class="tab-content">
+                <div class="section">
+                    <h3>💳 Payment Payload Generator</h3>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>From Address:</label>
+                            <input type="text" id="client-from" value="0x1234567890123456789012345678901234567890" placeholder="Sender wallet address">
+                        </div>
+                        <div class="form-group">
+                            <label>To Address:</label>
+                            <input type="text" id="client-to" value="0x742d35Cc6634C0532925a3b8D4b4b4b4b4b4b4b4" placeholder="Recipient wallet address">
+                        </div>
+                    </div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Amount:</label>
+                            <input type="number" id="client-amount" value="1000000" placeholder="Payment amount">
+                        </div>
+                        <div class="form-group">
+                            <label>Token Address:</label>
+                            <input type="text" id="client-token" value="0xA0b86a33E6441b8dB4B2f8b8C4b4b4b4b4b4b4b4" placeholder="Token contract address">
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generatePaymentPayload()">🔧 Generate Payment Payload</button>
+                    <div id="payload-response" class="response" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h3>🎯 Simulate Client Flow</h3>
+                    <div class="form-group">
+                        <label>Target Resource:</label>
+                        <select id="client-resource">
+                            <option value="/api/premium-data">Premium Data</option>
+                            <option value="/api/exclusive-report">Exclusive Report</option>
+                            <option value="/api/market-analysis">Market Analysis</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="simulateClientFlow()">🎯 Simulate Full Client Flow</button>
+                    <div id="client-flow-response" class="response" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Full Workflow Tab -->
+            <div id="workflow" class="tab-content">
+                <div class="section">
+                    <h3>🔄 Complete X402 Workflow Demonstration</h3>
+                    <p>This demonstrates the complete end-to-end X402 payment flow:</p>
+                    
+                    <div id="workflow-steps">
+                        <div class="workflow-step" id="step-1">
+                            <div class="step-number">1</div>
+                            <h4>Resource Discovery</h4>
+                            <p>Client discovers available paid resources from the resource server catalog.</p>
+                        </div>
+                        
+                        <div class="workflow-step" id="step-2">
+                            <div class="step-number">2</div>
+                            <h4>Initial Request (402 Response)</h4>
+                            <p>Client attempts to access protected resource and receives 402 Payment Required.</p>
+                        </div>
+                        
+                        <div class="workflow-step" id="step-3">
+                            <div class="step-number">3</div>
+                            <h4>Payment Payload Creation</h4>
+                            <p>Client creates payment payload with blockchain transaction details.</p>
+                        </div>
+                        
+                        <div class="workflow-step" id="step-4">
+                            <div class="step-number">4</div>
+                            <h4>Request with Payment</h4>
+                            <p>Client retries request with X-Payment header containing payment payload.</p>
+                        </div>
+                        
+                        <div class="workflow-step" id="step-5">
+                            <div class="step-number">5</div>
+                            <h4>Payment Verification</h4>
+                            <p>Resource server forwards payment to facilitator for verification.</p>
+                        </div>
+                        
+                        <div class="workflow-step" id="step-6">
+                            <div class="step-number">6</div>
+                            <h4>Payment Settlement</h4>
+                            <p>Facilitator settles the payment on the blockchain network.</p>
+                        </div>
+                        
+                        <div class="workflow-step" id="step-7">
+                            <div class="step-number">7</div>
+                            <h4>Resource Delivery</h4>
+                            <p>Resource server delivers protected content to the client.</p>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn btn-success" onclick="runFullWorkflow()" style="font-size: 1.2em; padding: 15px 30px;">🚀 Run Complete Workflow</button>
+                        <button class="btn btn-warning" onclick="resetWorkflow()">🔄 Reset</button>
+                    </div>
+                    
+                    <div id="workflow-response" class="response" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

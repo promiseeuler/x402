@@ -1,0 +1,36 @@
+{
+  "name": "x402-facilitator-demo-frontend",
+  "version": "1.0.0",
+  "description": "Web-based testing interface for X402 Facilitator Demo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "x402",
+    "facilitator",
+    "payment",
+    "demo",
+    "frontend",
+    "testing"
+  ],
+  "author": "X402 Demo Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/x402/facilitator-demo"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "files": [
+    "index.html",
+    "app.js",
+    "server.js",
+    "README.md"
+  ]
+}
