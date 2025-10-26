@@ -1,8 +1,6 @@
 import express from 'express';
 import axios from 'axios';
 import { X402SDK } from '../src/index';
-import { WalletManager } from '../src/wallet/WalletManager';
-import { NETWORKS } from '../src/protocol/networks';
 
 const app = express();
 const PORT = 3002;
@@ -13,39 +11,34 @@ app.use(express.static('public'));
 
 // Global variables
 let sdk: X402SDK;
-let walletManager: WalletManager;
 
 // Initialize the client
 async function initializeClient() {
   try {
     console.log('🚀 Initializing X402 Client...');
     
-    // Initialize wallet manager
-    walletManager = new WalletManager();
-    
-    // Load or create wallet
-    const walletExists = await walletManager.walletExists();
-    if (!walletExists) {
-      console.log('📝 Creating new client wallet...');
-      await walletManager.createWallet('client-password-123');
-    } else {
-      console.log('🔓 Loading existing client wallet...');
-      await walletManager.loadWallet('client-password-123');
-    }
-    
     // Initialize SDK
     sdk = new X402SDK({
-      network: NETWORKS.SOMNIA_TESTNET,
-      walletManager,
-      facilitatorUrl: 'http://localhost:3003', // Will connect to our facilitator
+      defaultNetwork: 'SOMNIA_TESTNET',
+      wallet: {
+        createRandom: true
+      },
       spendingLimits: {
-        perRequest: '1.0',
-        total: '100.0'
+        maxPerRequest: '1.0',
+        maxTotal: '100.0',
+        windowSeconds: 3600,
+        currentSpending: '0.0',
+        windowStart: Date.now()
+      },
+      facilitator: {
+        baseUrl: 'http://localhost:3003'
       }
     });
     
-    const address = await walletManager.getAddress();
-    const balance = await walletManager.getBalance('SOMNIA_TESTNET');
+    await sdk.initializeWallet();
+    
+    const address = sdk.getWalletAddress();
+    const balance = await sdk.getBalance('SOMNIA_TESTNET');
     
     console.log('✅ Client initialized successfully!');
     console.log(`📍 Client Address: ${address}`);
@@ -63,7 +56,7 @@ async function makePayment(amount: string, recipient: string, metadata?: any) {
     console.log(`💳 Making payment: ${amount} STT to ${recipient}`);
     console.log(`📝 Metadata:`, metadata || { source: 'standalone-client' });
     
-    const result = await walletManager.sendTransaction(
+    const result = await sdk.sendTransaction(
       'SOMNIA_TESTNET',
       recipient,
       amount
@@ -98,9 +91,9 @@ app.get('/test-server', async (req, res) => {
       serverStatus: statusResponse.data
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Failed to connect to server:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to connect to server',
       details: error.message
@@ -120,7 +113,7 @@ app.post('/request-data', async (req, res) => {
     let response;
     try {
       response = await axios.get(fullUrl);
-    } catch (error) {
+    } catch (error: any) {
       if (error.response && error.response.status === 402) {
         // Payment required - get payment details
         const paymentDetails = error.response.data.paymentDetails;
@@ -141,7 +134,7 @@ app.post('/request-data', async (req, res) => {
           }
         });
         
-        res.json({
+        return res.json({
           success: true,
           message: 'Request completed with payment',
           payment: {
@@ -157,17 +150,25 @@ app.post('/request-data', async (req, res) => {
     
     if (response && !res.headersSent) {
       // Request succeeded without payment (free endpoint)
-      res.json({
+      return res.json({
         success: true,
         message: 'Request completed (no payment required)',
         data: response.data
       });
     }
     
-  } catch (error) {
+    // Fallback if no response or headers already sent
+    if (!res.headersSent) {
+      return res.status(500).json({
+        success: false,
+        error: 'No response received'
+      });
+    }
+    
+  } catch (error: any) {
     console.error('❌ Request failed:', error);
     if (!res.headersSent) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Request failed',
         details: error.message
@@ -179,8 +180,8 @@ app.post('/request-data', async (req, res) => {
 // Get client wallet status
 app.get('/wallet-status', async (_req, res) => {
   try {
-    const address = await walletManager.getAddress();
-    const balance = await walletManager.getBalance('SOMNIA_TESTNET');
+    const address = sdk.getWalletAddress();
+    const balance = await sdk.getBalance('SOMNIA_TESTNET');
     
     res.json({
       address,
@@ -206,7 +207,7 @@ app.post('/make-payment', async (req, res) => {
     
     const result = await makePayment(amount, recipient, metadata);
     
-    res.json({
+    return res.json({
       success: true,
       message: 'Payment completed successfully',
       transactionHash: result.transactionHash,
@@ -214,9 +215,9 @@ app.post('/make-payment', async (req, res) => {
       recipient
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Manual payment failed:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Payment failed',
       details: error.message
@@ -227,8 +228,8 @@ app.post('/make-payment', async (req, res) => {
 // Client status endpoint
 app.get('/status', async (_req, res) => {
   try {
-    const address = await walletManager.getAddress();
-    const balance = await walletManager.getBalance();
+    const address = sdk.getWalletAddress();
+    const balance = await sdk.getBalance('SOMNIA_TESTNET');
     
     res.json({
       status: 'running',

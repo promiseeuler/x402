@@ -79,7 +79,7 @@ app.get('/api/data', async (req, res) => {
     console.log(`🔍 Payment proof: ${paymentProof}`);
     
     // Return the protected data
-    res.json({
+    return res.json({
       success: true,
       data: {
         message: 'This is protected data that requires payment',
@@ -93,7 +93,7 @@ app.get('/api/data', async (req, res) => {
     
   } catch (error) {
     console.error('❌ Error processing request:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -118,7 +118,7 @@ app.get('/api/premium-data', async (req, res) => {
     
     console.log(`💎 Premium payment received: ${paymentAmount} STT`);
     
-    res.json({
+    return res.json({
       success: true,
       data: {
         message: 'This is premium protected data',
@@ -137,7 +137,7 @@ app.get('/api/premium-data', async (req, res) => {
     
   } catch (error) {
     console.error('❌ Error processing premium request:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
