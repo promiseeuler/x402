@@ -252,6 +252,24 @@ export class X402SDK {
   }
 
   /**
+   * Get wallet manager instance
+   */
+  getWalletManager(): WalletManager {
+    return this.walletManager;
+  }
+
+  /**
+   * Send a transaction
+   */
+  async sendTransaction(
+    network: NetworkName,
+    to: string,
+    amount: string
+  ): Promise<any> {
+    return this.walletManager.sendTransaction(network, to, amount);
+  }
+
+  /**
    * Export wallet private key (use with caution)
    */
   exportPrivateKey(): string {

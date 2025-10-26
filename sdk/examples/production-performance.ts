@@ -2,7 +2,7 @@ import { X402SDK } from '../src/index';
 import { ethers } from 'ethers';
 import { ProductionWalletManager } from './production-wallet-setup';
 import { ProductionMonitor } from './production-monitoring';
-import { ProductionErrorHandler } from './production-error-handling';
+// import { ProductionErrorHandler } from './production-error-handling';
 
 /**
  * Production Performance Testing
@@ -55,13 +55,13 @@ interface TransactionResult {
 class PerformanceTester {
   private sdk: X402SDK;
   private monitor: ProductionMonitor;
-  private errorHandler: ProductionErrorHandler;
+
   private results: PerformanceResult[] = [];
 
   constructor(sdk: X402SDK) {
     this.sdk = sdk;
     this.monitor = new ProductionMonitor(sdk);
-    this.errorHandler = new ProductionErrorHandler(sdk);
+    // Error handler would be initialized here in production
   }
 
   /**
@@ -145,7 +145,7 @@ class PerformanceTester {
         }
         
       } catch (error) {
-        console.error(`❌ ${test.name} failed: ${error.message}`);
+        console.error(`❌ ${test.name} failed: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
     
@@ -318,7 +318,7 @@ class PerformanceTester {
         startTime,
         endTime,
         duration: endTime - startTime,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -446,7 +446,7 @@ class PerformanceTester {
         }
         
       } catch (error) {
-        console.error(`❌ Stress test failed at ${config.concurrent} concurrent transactions: ${error.message}`);
+        console.error(`❌ Stress test failed at ${config.concurrent} concurrent transactions: ${error instanceof Error ? error.message : String(error)}`);
         break;
       }
       
@@ -503,7 +503,7 @@ async function runPerformanceTests(): Promise<void> {
     
     // Run performance test suite
     console.log(`\n🚀 Running Performance Test Suite...`);
-    const results = await tester.runPerformanceTestSuite();
+    await tester.runPerformanceTestSuite();
     
     // Run stress test
     await tester.runStressTest();
@@ -514,7 +514,7 @@ async function runPerformanceTests(): Promise<void> {
     
     console.log(`\n📊 Final Performance Report:`);
     console.log(`=`.repeat(50));
-    console.log(JSON.stringify(report, (key, value) => 
+    console.log(JSON.stringify(report, (_key, value) => 
       typeof value === 'bigint' ? value.toString() : value, 2
     ));
     
@@ -528,7 +528,7 @@ async function runPerformanceTests(): Promise<void> {
     console.log(`   • Total Gas Used: ${report.overallStats.totalGasUsed.toString()}`);
     
   } catch (error) {
-    console.error(`❌ Performance testing failed:`, error.message);
+    console.error(`❌ Performance testing failed:`, error instanceof Error ? error.message : String(error));
   }
 }
 
