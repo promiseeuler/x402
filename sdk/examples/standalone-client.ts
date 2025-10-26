@@ -85,7 +85,7 @@ app.get('/test-server', async (req, res) => {
     const statusResponse = await axios.get(`${serverUrl}/status`);
     console.log('📊 Server status:', statusResponse.data);
     
-    res.json({
+    return res.json({
       success: true,
       message: 'Successfully connected to X402 server',
       serverStatus: statusResponse.data
@@ -164,6 +164,7 @@ app.post('/request-data', async (req, res) => {
         error: 'No response received'
       });
     }
+    return; // Explicit return when headers already sent
     
   } catch (error: any) {
     console.error('❌ Request failed:', error);
@@ -174,6 +175,7 @@ app.post('/request-data', async (req, res) => {
         details: error.message
       });
     }
+    return; // Explicit return when headers already sent
   }
 });
 
