@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="X402 - Professional AI Payment Infrastructure" />
+    <meta name="keywords" content="blockchain, AI, payments, cryptocurrency, wallet, X402" />
+    <meta name="author" content="X402 Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://x402.ai/" />
+    <meta property="og:title" content="X402 - AI Payment Infrastructure" />
+    <meta property="og:description" content="Professional embedded wallet system for AI service payments" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://x402.ai/" />
+    <meta property="twitter:title" content="X402 - AI Payment Infrastructure" />
+    <meta property="twitter:description" content="Professional embedded wallet system for AI service payments" />
+    <meta property="twitter:image" content="/twitter-image.png" />
+    
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#1976d2" />
+    
+    <!-- Apple touch icon -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <title>X402 - AI Payment Infrastructure</title>
+    
+    <style>
+      /* Loading screen styles */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        color: white;
+        font-family: 'Roboto', sans-serif;
+      }
+      
+      .loading-logo {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 24px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 600;
+        animation: pulse 2s infinite;
+      }
+      
+      .loading-text {
+        font-size: 24px;
+        font-weight: 500;
+        margin-bottom: 16px;
+      }
+      
+      .loading-subtitle {
+        font-size: 16px;
+        opacity: 0.8;
+        margin-bottom: 32px;
+      }
+      
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+      
+      /* Hide loading screen when app loads */
+      .loaded #loading-screen {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div class="loading-logo">X402</div>
+      <div class="loading-text">X402</div>
+      <div class="loading-subtitle">AI Payment Infrastructure</div>
+      <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- React App Root -->
+    <div id="root"></div>
+    
+    <!-- App Loading Script -->
+    <script>
+      // Hide loading screen when app is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          document.body.classList.add('loaded');
+          setTimeout(function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+              loadingScreen.remove();
+            }
+          }, 500);
+        }, 1000);
+      });
+      
+      // Error handling
+      window.addEventListener('error', function(e) {
+        console.error('Application error:', e.error);
+      });
+      
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason);
+      });
+    </script>
+    
+    <!-- Vite Script -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

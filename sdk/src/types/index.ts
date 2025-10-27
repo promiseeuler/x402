@@ -14,6 +14,15 @@ export * from './payment';
 // Protocol types
 export * from './protocol';
 
+// Wallet types
+export * from './wallet';
+
+// AI types
+export * from './ai';
+
+// Storage types
+export * from './storage';
+
 // SDK configuration types
 export interface X402SDKConfig {
   /** Default network to use */

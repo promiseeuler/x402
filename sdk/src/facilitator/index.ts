@@ -3,8 +3,8 @@
  * Exports facilitator client and related types for payment verification
  */
 
-export {
-  FacilitatorClient,
+export { FacilitatorClient } from './FacilitatorClient';
+export type {
   FacilitatorConfig,
   PaymentQuote,
   PaymentProof,
