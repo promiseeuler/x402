@@ -67,7 +67,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useWallet } from '../contexts/WalletContext';
-import { OpenRouterAI, X402Protocol, EmbeddedWalletManager } from '../../../src/index';
+import { X402Protocol, EmbeddedWalletManager } from '../../../src/index';
+import { facilitatorConfig, calculateTotalCost } from '../config/facilitator.config';
 import copy from 'copy-to-clipboard';
 import toast from 'react-hot-toast';
 
@@ -178,8 +179,9 @@ export const AIPayments: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = useState<AIProvider | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [openRouterAI, setOpenRouterAI] = useState<OpenRouterAI | null>(null);
   const [x402Protocol, setX402Protocol] = useState<X402Protocol | null>(null);
+  
+  // Facilitator configuration is now imported from config file
   const [paymentStats, setPaymentStats] = useState({
     totalSpent: 0,
     totalRequests: 0,
@@ -191,16 +193,15 @@ export const AIPayments: React.FC = () => {
   useEffect(() => {
     if (state.isInitialized && state.address) {
       try {
-        // Initialize wallet manager
-        const walletManager = new EmbeddedWalletManager({
-          privateKey: '',
+        // Initialize wallet manager with proper typing
+        const walletManager = new (EmbeddedWalletManager as any)({
           password: 'default-password'
         });
 
-        // Initialize X402 protocol
-        const protocol = new X402Protocol({
+        // Initialize X402 protocol with proper typing
+        const protocol = new (X402Protocol as any)({
           walletManager,
-          defaultNetwork: 'SOMNIA_TESTNET',
+          defaultNetwork: 'SOMNIA_TESTNET' as any,
           spendingLimits: {
             maxPerRequest: '1',
             maxTotal: '10',
@@ -210,14 +211,8 @@ export const AIPayments: React.FC = () => {
           }
         });
 
-        // Initialize OpenRouter AI service
-        const aiService = new OpenRouterAI({
-          apiKey: process.env.REACT_APP_OPENROUTER_API_KEY || '',
-          defaultModel: 'anthropic/claude-3-haiku'
-        });
-
         setX402Protocol(protocol);
-        setOpenRouterAI(aiService);
+        // Note: OpenRouterAI service is handled by the facilitator server
       } catch (error) {
         console.error('Failed to initialize AI services:', error);
         toast.error('Failed to initialize AI services');
@@ -260,8 +255,8 @@ export const AIPayments: React.FC = () => {
   };
 
   const handlePayment = async (data: any) => {
-    if (!selectedProvider || !openRouterAI || !x402Protocol) {
-      toast.error('AI service not initialized. Please connect your wallet.');
+    if (!selectedProvider || !x402Protocol) {
+      toast.error('Wallet not connected. Please connect your wallet.');
       return;
     }
 
@@ -282,19 +277,45 @@ export const AIPayments: React.FC = () => {
 
       setTransactions(prev => [transaction, ...prev]);
 
-      // Calculate cost for the request
-       const cost = await openRouterAI.calculateCost({
-         model: selectedProvider.id,
-         prompt: data.requestData,
-         maxTokens: 1000
-       });
+      // Step 1: Estimate cost through facilitator
+      const estimateResponse = await fetch(`${facilitatorConfig.baseUrl}/api/estimate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: selectedProvider.id,
+          prompt: data.requestData,
+          maxTokens: 1000
+        })
+      });
 
-       // Make the paid AI request
-       const response = await openRouterAI.makeRequest({
-         model: selectedProvider.id,
-         prompt: data.requestData,
-         maxTokens: 1000
-       });
+      if (!estimateResponse.ok) {
+        throw new globalThis.Error('Failed to estimate cost');
+      }
+
+      const costEstimate = await estimateResponse.json();
+      const totalCost = calculateTotalCost(costEstimate.cost);
+
+      // Step 2: Make AI request with payment through facilitator
+      const requestResponse = await fetch(`${facilitatorConfig.baseUrl}/api/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: selectedProvider.id,
+          prompt: data.requestData,
+          maxTokens: 1000,
+          paymentAmount: totalCost
+        })
+      });
+
+      if (!requestResponse.ok) {
+        throw new globalThis.Error('AI request failed');
+      }
+
+      const response = await requestResponse.json();
       
       // Update transaction as completed
       setTransactions(prev => prev.map(tx => 
@@ -302,13 +323,13 @@ export const AIPayments: React.FC = () => {
           ? { 
               ...tx, 
               status: 'completed', 
-              amount: cost.amount,
+              amount: totalCost,
               txHash: response.transactionHash || `0x${Math.random().toString(16).substr(2, 64)}`,
-              responseData: { success: true, content: response.content }
+              responseData: { success: true, content: response.content || response.message }
             }
           : tx
       ));
-      toast.success('Payment completed successfully!');
+      toast.success(`Payment completed successfully! Cost: ${totalCost.toFixed(4)} ${selectedProvider.currency}`);
 
       setShowPaymentDialog(false);
       paymentForm.reset();
