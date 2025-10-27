@@ -81,12 +81,12 @@ async function initializeFacilitator() {
 // API Routes
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 // Get available AI models
-app.get('/api/models', async (req, res) => {
+app.get('/api/models', async (_req, res) => {
   try {
     const models = await aiFacilitator.getAvailableModels();
     res.json({ success: true, models });
@@ -107,10 +107,19 @@ app.post('/api/estimate', async (req, res) => {
       });
     }
 
-    const cost = await aiFacilitator.estimateCost(model, prompt, maxTokens);
-    res.json({ success: true, cost });
+    const paymentDetails = await aiFacilitator.estimateCost(model, prompt, maxTokens);
+    
+    // Transform PaymentDetails to CostEstimate format
+    const cost = {
+      promptTokens: Math.ceil((prompt.length / 4)), // Rough estimate: 4 chars per token
+      estimatedCompletionTokens: maxTokens || 1000,
+      totalCost: paymentDetails.amount,
+      currency: paymentDetails.currency
+    };
+    
+    return res.json({ success: true, cost });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -139,9 +148,9 @@ app.post('/api/request', async (req, res) => {
     };
 
     const response = await aiFacilitator.processAIRequest(aiRequest);
-    res.json({ success: true, response });
+    return res.json({ success: true, response });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -158,9 +167,9 @@ app.post('/api/verify-payment', async (req, res) => {
     }
 
     const verification = await aiFacilitator.verifyPayment(transactionHash);
-    res.json({ success: true, verification });
+    return res.json({ success: true, verification });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -184,34 +193,34 @@ app.get('/api/request/:id/status', (req, res) => {
       response.data = completedRequest;
     }
 
-    res.json(response);
+    return res.json(response);
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Get facilitator statistics
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', (_req, res) => {
   try {
     const stats = aiFacilitator.getStatistics();
-    res.json({ success: true, stats });
+    return res.json({ success: true, stats });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Error handling middleware
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server error:', error);
-  res.status(500).json({ 
+  return res.status(500).json({ 
     success: false, 
     error: 'Internal server error' 
   });
 });
 
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({ 
+app.use((_req, res) => {
+  return res.status(404).json({ 
     success: false, 
     error: 'Endpoint not found' 
   });

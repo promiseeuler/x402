@@ -389,13 +389,7 @@ const aiFacilitator = new AIFacilitator({
 });
 ```
 
-## Support
 
-For issues and questions:
-
-- GitHub Issues: [X402 SDK Issues](https://github.com/your-org/x402-sdk/issues)
-- Documentation: [X402 SDK Docs](https://docs.x402.dev)
-- Discord: [X402 Community](https://discord.gg/x402)
 
 ## License
 

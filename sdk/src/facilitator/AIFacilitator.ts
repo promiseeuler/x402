@@ -82,8 +82,10 @@ export class AIFacilitator extends EventEmitter {
     this.openRouterAI = new OpenRouterAI({
       apiKey: config.openRouterApiKey,
       baseUrl: 'https://openrouter.ai/api/v1',
-      defaultModel: 'anthropic/claude-3-haiku'
-    }, this.x402Protocol);
+      defaultModel: 'anthropic/claude-3-haiku',
+      costPerRequest: 0.001,
+      network: config.network || 'SOMNIA_TESTNET'
+    });
 
     this.setupEventListeners();
   }
@@ -98,6 +100,7 @@ export class AIFacilitator extends EventEmitter {
   async processAIRequest(request: AIServiceRequest): Promise<AIServiceResponse> {
     try {
       this.activeRequests.set(request.id, request);
+      console.log(`🚀 AI request started: ${request.id}`);
       this.emit('requestStarted', request);
 
       // Calculate cost for the request
@@ -107,15 +110,19 @@ export class AIFacilitator extends EventEmitter {
         maxTokens: request.maxTokens || 1000
       });
 
+      console.log(`💰 Cost calculated for ${request.id}: ${costEstimate.amount} STT`);
       this.emit('costCalculated', { requestId: request.id, cost: costEstimate });
 
       // Make the paid AI request
+      console.log(`🔄 Making OpenRouter API request for ${request.id}...`);
       const aiResponse = await this.openRouterAI.makeRequest({
         model: request.model,
         prompt: request.prompt,
         maxTokens: request.maxTokens || 1000,
         temperature: request.temperature
       });
+
+      console.log(`📝 AI response received for ${request.id}: ${aiResponse.content.substring(0, 100)}...`);
 
       // Create service response
       const serviceResponse: AIServiceResponse = {
@@ -133,11 +140,13 @@ export class AIFacilitator extends EventEmitter {
       this.completedRequests.set(request.id, serviceResponse);
       this.activeRequests.delete(request.id);
 
+      console.log(`🎉 AI request completed: ${request.id}`);
       this.emit('requestCompleted', serviceResponse);
       return serviceResponse;
 
     } catch (error: any) {
       this.activeRequests.delete(request.id);
+      console.error(`❌ AI request failed: ${request.id}`, error.message);
       this.emit('requestFailed', { requestId: request.id, error: error.message });
       throw error;
     }
@@ -174,7 +183,7 @@ export class AIFacilitator extends EventEmitter {
    * Estimate cost for an AI request
    */
   async estimateCost(model: string, prompt: string, maxTokens?: number): Promise<any> {
-    return await this.openRouterAI.calculateCost({
+    return this.openRouterAI.estimateCost({
       model,
       prompt,
       maxTokens: maxTokens || 1000

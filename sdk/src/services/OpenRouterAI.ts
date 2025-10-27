@@ -4,7 +4,6 @@
  */
 
 import axios from 'axios';
-import { X402Protocol } from '../protocol/X402Protocol';
 import { NetworkName } from '../types/network';
 
 export interface OpenRouterConfig {
@@ -63,10 +62,9 @@ export interface PaymentDetails {
 
 export class OpenRouterAI {
   private config: OpenRouterConfig;
-  private x402Protocol: X402Protocol;
   private baseUrl: string;
 
-  constructor(config: OpenRouterConfig, x402Protocol: X402Protocol) {
+  constructor(config: OpenRouterConfig) {
     this.config = {
       baseUrl: 'https://openrouter.ai/api/v1',
       defaultModel: 'anthropic/claude-3-haiku',
@@ -74,7 +72,6 @@ export class OpenRouterAI {
       network: 'SOMNIA_TESTNET',
       ...config
     };
-    this.x402Protocol = x402Protocol;
     this.baseUrl = this.config.baseUrl!;
   }
 
@@ -112,32 +109,37 @@ export class OpenRouterAI {
    */
   async makeRequest(request: AIRequest): Promise<AIResponse> {
     try {
-      // Prepare the OpenRouter request
       const openRouterRequest = {
-        model: request.model || this.config.defaultModel,
+        model: request.model || this.config.defaultModel!,
         messages: [
           {
             role: 'user',
             content: request.prompt
           }
         ],
-        max_tokens: request.maxTokens || 1000,
+        max_tokens: request.maxTokens || 500,
         temperature: request.temperature || 0.7
       };
 
-      // Make the request through X402 protocol
-      // This will handle the payment automatically based on 402 responses
-      const response = await this.x402Protocol.request({
+      console.log(`🔧 OpenRouter request config:`, {
         url: `${this.baseUrl}/chat/completions`,
-        method: 'POST',
+        model: openRouterRequest.model,
+        prompt: request.prompt.substring(0, 50) + '....',
+        maxTokens: openRouterRequest.max_tokens
+      });
+
+      // Make direct HTTP request to OpenRouter API (not X402-enabled)
+      const response = await axios.post(`${this.baseUrl}/chat/completions`, openRouterRequest, {
         headers: {
           'Authorization': `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': 'https://x402.ai',
           'X-Title': 'X402 AI Payment System'
-        },
-        data: openRouterRequest
+        }
       });
+
+      console.log(`📡 OpenRouter response status:`, response.status);
+      console.log(`📊 OpenRouter response data:`, JSON.stringify(response.data, null, 2));
 
       // Extract the AI response
       const aiResponseText = response.data?.choices?.[0]?.message?.content || 'No response received';
@@ -150,11 +152,19 @@ export class OpenRouterAI {
           completionTokens: response.data?.usage?.completion_tokens || 0,
           totalTokens: response.data?.usage?.total_tokens || 0
         },
-        transactionHash: response.payment?.transactionHash,
+        transactionHash: undefined, // No X402 payment for direct OpenRouter calls
         timestamp: new Date()
       };
 
     } catch (error: any) {
+      console.log(`❌ OpenRouter API error:`, {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        code: error.code
+      });
+
       // Handle different types of errors
       if (error.code === 'INSUFFICIENT_BALANCE') {
         throw new Error('Insufficient balance to make AI request. Please add funds to your wallet.');
