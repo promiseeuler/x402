@@ -33,6 +33,3 @@ cd minigame-example && npm install && npm start
 - [Minigame Tutorial](./minigame-example/README.md)
 - [Project Overview](./sdk/Project.md)
 
-## License
-
-MIT License - see LICENSE file for details.
