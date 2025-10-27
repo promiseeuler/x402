@@ -33,6 +33,7 @@ export interface WalletRecoveryOptions {
 
 export interface EmbeddedWalletConfig extends WalletConfig {
   password: string;
+  network?: string;
   storage?: any;
   storagePrefix?: string;
   autoSave?: boolean;

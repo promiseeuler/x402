@@ -249,6 +249,32 @@ export class WalletManager {
   }
 
   /**
+   * Get transaction receipt
+   */
+  async getTransactionReceipt(txHash: string): Promise<ethers.TransactionReceipt | null> {
+    try {
+      // Try to get receipt from all available providers
+      for (const [_network, provider] of this.providers) {
+        try {
+          const receipt = await provider.getTransactionReceipt(txHash);
+          if (receipt) {
+            return receipt;
+          }
+        } catch (error) {
+          // Continue to next provider if this one fails
+          continue;
+        }
+      }
+      return null;
+    } catch (error: any) {
+      throw this.createNetworkError(
+        NetworkErrorCode.TRANSACTION_FAILED,
+        `Failed to get transaction receipt: ${error.message}`
+      );
+    }
+  }
+
+  /**
    * Check if wallet has sufficient balance for a transaction
    */
   async hasSufficientBalance(

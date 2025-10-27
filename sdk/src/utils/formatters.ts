@@ -6,19 +6,18 @@ import { ethers } from 'ethers';
 
 /**
  * Format a balance from wei to a human-readable string
- * @param balance - Balance in wei (string or BigNumber)
+ * @param balance - Balance in wei (string or bigint)
  * @param decimals - Token decimals (default: 18 for ETH)
  * @param precision - Number of decimal places to show (default: 4)
  * @returns Formatted balance string
  */
 export function formatBalance(
-  balance: string | ethers.BigNumber,
+  balance: string | bigint,
   decimals: number = 18,
   precision: number = 4
 ): string {
   try {
-    const balanceBN = ethers.BigNumber.from(balance);
-    const formatted = ethers.utils.formatUnits(balanceBN, decimals);
+    const formatted = ethers.formatUnits(balance, decimals);
     const num = parseFloat(formatted);
     
     if (num === 0) return '0';
@@ -35,14 +34,14 @@ export function formatBalance(
  * Parse a human-readable balance string to wei
  * @param balance - Human-readable balance string
  * @param decimals - Token decimals (default: 18 for ETH)
- * @returns Balance in wei as BigNumber
+ * @returns Balance in wei as bigint
  */
 export function parseBalance(
   balance: string,
   decimals: number = 18
-): ethers.BigNumber {
+): bigint {
   try {
-    return ethers.utils.parseUnits(balance, decimals);
+    return ethers.parseUnits(balance, decimals);
   } catch (error) {
     throw new Error(`Invalid balance format: ${balance}`);
   }

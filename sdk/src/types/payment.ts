@@ -65,6 +65,8 @@ export interface SpendingLimit {
   maxPerRequest: string;
   /** Maximum total amount in time window */
   maxTotal: string;
+  /** Daily spending limit */
+  daily?: string;
   /** Time window in seconds */
   windowSeconds: number;
   /** Current spending in window */

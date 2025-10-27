@@ -21,11 +21,8 @@ export function generateMnemonic(wordCount: 12 | 15 | 18 | 21 | 24 = 12): string
       24: 256
     }[wordCount];
     
-    // Generate random entropy
-    const entropy = ethers.utils.randomBytes(entropyBits / 8);
-    
-    // Create mnemonic from entropy
-    return ethers.utils.entropyToMnemonic(entropy);
+    // Generate random entropy and create mnemonic
+    return ethers.Mnemonic.fromEntropy(ethers.randomBytes(entropyBits / 8)).phrase;
   } catch (error) {
     throw new Error(`Failed to generate mnemonic: ${error}`);
   }
@@ -102,7 +99,7 @@ export function encryptData(data: string, password: string): string {
     const iv = crypto.randomBytes(12);
     
     // Create cipher
-    const cipher = crypto.createCipherGCM('aes-256-gcm', key);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, Buffer.alloc(12));
     cipher.setAAD(Buffer.from('x402-wallet', 'utf8'));
     
     // Encrypt data
@@ -146,7 +143,7 @@ export function decryptData(encryptedData: string, password: string): string {
     const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256');
     
     // Create decipher
-    const decipher = crypto.createDecipherGCM('aes-256-gcm', key);
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.alloc(12));
     decipher.setAAD(Buffer.from('x402-wallet', 'utf8'));
     decipher.setAuthTag(authTag);
     
@@ -227,9 +224,10 @@ export function constantTimeEqual(a: string, b: string): boolean {
 export function walletFromMnemonic(
   mnemonic: string,
   derivationPath: string = "m/44'/60'/0'/0/0"
-): ethers.Wallet {
+): ethers.HDNodeWallet {
   try {
-    return ethers.Wallet.fromMnemonic(mnemonic, derivationPath);
+    const mnemonicObj = ethers.Mnemonic.fromPhrase(mnemonic);
+    return ethers.HDNodeWallet.fromMnemonic(mnemonicObj, derivationPath);
   } catch (error) {
     throw new Error(`Failed to create wallet from mnemonic: ${error}`);
   }

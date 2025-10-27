@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
  */
 export function validateAddress(address: string): boolean {
   try {
-    return ethers.utils.isAddress(address);
+    return ethers.isAddress(address);
   } catch {
     return false;
   }
@@ -47,7 +47,7 @@ export function validatePrivateKey(privateKey: string): boolean {
  */
 export function validateMnemonic(mnemonic: string): boolean {
   try {
-    return ethers.utils.isValidMnemonic(mnemonic.trim());
+    return ethers.Mnemonic.isValidMnemonic(mnemonic.trim());
   } catch {
     return false;
   }
@@ -110,8 +110,8 @@ export function validateAmount(amount: string, maxDecimals: number = 18): boolea
       return false;
     }
     
-    // Try to parse as BigNumber
-    ethers.utils.parseUnits(amount, maxDecimals);
+    // Try to parse as bigint
+    ethers.parseUnits(amount, maxDecimals);
     return true;
   } catch {
     return false;

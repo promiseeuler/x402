@@ -4,6 +4,7 @@
  */
 
 export { FacilitatorClient } from './FacilitatorClient';
+export { AIFacilitator } from './AIFacilitator';
 export type {
   FacilitatorConfig,
   PaymentQuote,
@@ -11,3 +12,9 @@ export type {
   ServiceAccess,
   FacilitatorError
 } from './FacilitatorClient';
+export type {
+  AIFacilitatorConfig,
+  AIServiceRequest,
+  AIServiceResponse,
+  PaymentVerification
+} from './AIFacilitator';

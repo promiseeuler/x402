@@ -67,6 +67,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useWallet } from '../contexts/WalletContext';
+import { OpenRouterAI, X402Protocol, EmbeddedWalletManager } from '../../../src/index';
 import copy from 'copy-to-clipboard';
 import toast from 'react-hot-toast';
 
@@ -119,46 +120,46 @@ function TabPanel(props: TabPanelProps) {
 }
 
 // Mock AI Providers
-const mockAIProviders: AIProvider[] = [
+const openRouterModels: AIProvider[] = [
   {
-    id: 'openai',
-    name: 'OpenAI GPT',
-    description: 'Advanced language models for text generation and completion',
-    baseUrl: 'https://api.openai.com/v1',
+    id: 'anthropic/claude-3-haiku',
+    name: 'Claude 3 Haiku',
+    description: 'Fast and efficient AI model for quick responses',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    costPerRequest: 0.001,
+    currency: 'STT',
+    status: 'active',
+    features: ['Text Generation', 'Conversation', 'Analysis', 'Writing']
+  },
+  {
+    id: 'anthropic/claude-3-sonnet',
+    name: 'Claude 3 Sonnet',
+    description: 'Balanced AI model for complex tasks',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    costPerRequest: 0.0015,
+    currency: 'STT',
+    status: 'active',
+    features: ['Advanced Reasoning', 'Code Generation', 'Research', 'Analysis']
+  },
+  {
+    id: 'openai/gpt-3.5-turbo',
+    name: 'GPT-3.5 Turbo',
+    description: 'OpenAI\'s efficient language model',
+    baseUrl: 'https://openrouter.ai/api/v1',
     costPerRequest: 0.002,
     currency: 'STT',
     status: 'active',
     features: ['Text Generation', 'Code Completion', 'Translation', 'Summarization']
   },
   {
-    id: 'anthropic',
-    name: 'Anthropic Claude',
-    description: 'Constitutional AI for safe and helpful conversations',
-    baseUrl: 'https://api.anthropic.com/v1',
-    costPerRequest: 0.0015,
+    id: 'openai/gpt-4',
+    name: 'GPT-4',
+    description: 'OpenAI\'s most capable language model',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    costPerRequest: 0.005,
     currency: 'STT',
     status: 'active',
-    features: ['Conversation', 'Analysis', 'Writing', 'Research']
-  },
-  {
-    id: 'stability',
-    name: 'Stability AI',
-    description: 'Image generation and manipulation models',
-    baseUrl: 'https://api.stability.ai/v1',
-    costPerRequest: 0.01,
-    currency: 'STT',
-    status: 'active',
-    features: ['Image Generation', 'Image Editing', 'Style Transfer']
-  },
-  {
-    id: 'cohere',
-    name: 'Cohere',
-    description: 'Natural language processing and understanding',
-    baseUrl: 'https://api.cohere.ai/v1',
-    costPerRequest: 0.001,
-    currency: 'STT',
-    status: 'maintenance',
-    features: ['Text Classification', 'Embeddings', 'Semantic Search']
+    features: ['Advanced Reasoning', 'Complex Problem Solving', 'Creative Writing', 'Code Generation']
   }
 ];
 
@@ -172,17 +173,57 @@ const paymentSchema = yup.object({
 export const AIPayments: React.FC = () => {
   const { state } = useWallet();
   const [currentTab, setCurrentTab] = useState(0);
-  const [providers] = useState<AIProvider[]>(mockAIProviders);
+  const [providers] = useState<AIProvider[]>(openRouterModels);
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<AIProvider | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [openRouterAI, setOpenRouterAI] = useState<OpenRouterAI | null>(null);
+  const [x402Protocol, setX402Protocol] = useState<X402Protocol | null>(null);
   const [paymentStats, setPaymentStats] = useState({
     totalSpent: 0,
     totalRequests: 0,
     successRate: 0,
     averageCost: 0
   });
+
+  // Initialize services when wallet is connected
+  useEffect(() => {
+    if (state.isInitialized && state.address) {
+      try {
+        // Initialize wallet manager
+        const walletManager = new EmbeddedWalletManager({
+          privateKey: '',
+          password: 'default-password'
+        });
+
+        // Initialize X402 protocol
+        const protocol = new X402Protocol({
+          walletManager,
+          defaultNetwork: 'SOMNIA_TESTNET',
+          spendingLimits: {
+            maxPerRequest: '1',
+            maxTotal: '10',
+            windowSeconds: 86400,
+            currentSpending: '0',
+            windowStart: Date.now()
+          }
+        });
+
+        // Initialize OpenRouter AI service
+        const aiService = new OpenRouterAI({
+          apiKey: process.env.REACT_APP_OPENROUTER_API_KEY || '',
+          defaultModel: 'anthropic/claude-3-haiku'
+        }, protocol);
+
+        setX402Protocol(protocol);
+        setOpenRouterAI(aiService);
+      } catch (error) {
+        console.error('Failed to initialize AI services:', error);
+        toast.error('Failed to initialize AI services');
+      }
+    }
+  }, [state.isInitialized, state.address]);
 
   const paymentForm = useForm({
     resolver: yupResolver(paymentSchema),
@@ -219,63 +260,75 @@ export const AIPayments: React.FC = () => {
   };
 
   const handlePayment = async (data: any) => {
-    if (!selectedProvider) return;
+    if (!selectedProvider || !openRouterAI || !x402Protocol) {
+      toast.error('AI service not initialized. Please connect your wallet.');
+      return;
+    }
+
+    // Create transaction record
+    const transaction: PaymentTransaction = {
+      id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      providerId: selectedProvider.id,
+      providerName: selectedProvider.name,
+      amount: data.customAmount || selectedProvider.costPerRequest,
+      currency: selectedProvider.currency,
+      status: 'pending',
+      timestamp: Date.now(),
+      requestData: data.requestData
+    };
 
     try {
       setIsProcessing(true);
-      
-      // Create transaction record
-      const transaction: PaymentTransaction = {
-        id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        providerId: selectedProvider.id,
-        providerName: selectedProvider.name,
-        amount: data.customAmount || selectedProvider.costPerRequest,
-        currency: selectedProvider.currency,
-        status: 'pending',
-        timestamp: Date.now(),
-        requestData: data.requestData
-      };
 
       setTransactions(prev => [transaction, ...prev]);
 
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Calculate cost for the request
+       const cost = await openRouterAI.calculateCost({
+         model: selectedProvider.id,
+         prompt: data.requestData,
+         maxTokens: 1000
+       });
 
-      // Simulate success/failure (90% success rate)
-      const isSuccess = Math.random() > 0.1;
+       // Make the paid AI request
+       const response = await openRouterAI.makeRequest({
+         model: selectedProvider.id,
+         prompt: data.requestData,
+         maxTokens: 1000
+       });
       
-      if (isSuccess) {
-        // Update transaction as completed
-        setTransactions(prev => prev.map(tx => 
-          tx.id === transaction.id 
-            ? { 
-                ...tx, 
-                status: 'completed', 
-                txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
-                responseData: { success: true, message: 'AI request processed successfully' }
-              }
-            : tx
-        ));
-        toast.success('Payment completed successfully!');
-      } else {
-        // Update transaction as failed
-        setTransactions(prev => prev.map(tx => 
-          tx.id === transaction.id 
-            ? { 
-                ...tx, 
-                status: 'failed',
-                errorMessage: 'Payment failed due to network error'
-              }
-            : tx
-        ));
-        toast.error('Payment failed. Please try again.');
-      }
+      // Update transaction as completed
+      setTransactions(prev => prev.map(tx => 
+        tx.id === transaction.id 
+          ? { 
+              ...tx, 
+              status: 'completed', 
+              amount: cost.amount,
+              txHash: response.transactionHash || `0x${Math.random().toString(16).substr(2, 64)}`,
+              responseData: { success: true, content: response.content }
+            }
+          : tx
+      ));
+      toast.success('Payment completed successfully!');
 
       setShowPaymentDialog(false);
       paymentForm.reset();
       setSelectedProvider(null);
-    } catch (error) {
-      toast.error(`Payment error: ${error}`);
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      const errorMessage = error.message || 'An error occurred during payment processing.';
+      
+      // Update transaction as failed
+      setTransactions(prev => prev.map(tx => 
+        tx.id === transaction.id 
+          ? { 
+              ...tx, 
+              status: 'failed',
+              errorMessage
+            }
+          : tx
+      ));
+      
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }

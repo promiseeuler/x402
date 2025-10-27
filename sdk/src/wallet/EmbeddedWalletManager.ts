@@ -297,12 +297,12 @@ export class EmbeddedWalletManager extends WalletManager {
     return super.getAddress();
   }
 
-  getPrivateKey(): string {
+  override getPrivateKey(): string {
     this.ensureUnlocked();
     return super.getPrivateKey();
   }
 
-  async getBalance(network: NetworkName, tokenAddress?: string): Promise<string> {
+  override async getBalance(network: NetworkName, tokenAddress?: string): Promise<string> {
     this.ensureUnlocked();
     return super.getBalance(network, tokenAddress);
   }

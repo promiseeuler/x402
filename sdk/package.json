@@ -37,7 +37,9 @@
     "start:examples": "concurrently \"npm run start:facilitator\" \"npm run start:server\" \"npm run start:client\"",
     "start:facilitator": "ts-node examples/standalone-facilitator.ts",
     "start:server": "ts-node examples/standalone-server.ts",
-    "start:client": "ts-node examples/standalone-client.ts"
+    "start:client": "ts-node examples/standalone-client.ts",
+    "example:ai-server": "ts-node examples/ai-facilitator-server.ts",
+    "example:ai-client": "ts-node examples/ai-facilitator-client.ts"
   },
   "keywords": [
     "x402",
@@ -58,10 +60,12 @@
     "@types/express": "^5.0.4",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
     "ethers": "^6.8.1",
     "express": "^5.1.0",
     "viem": "^1.19.9",
-    "wagmi": "^1.4.12"
+    "wagmi": "^1.4.12",
+    "ws": "^8.14.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.9",
@@ -70,7 +74,8 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/jest": "^29.5.8",
-    "@types/node": "^20.9.0",
+    "@types/node": "^20.19.23",
+    "@types/ws": "^8.5.0",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
     "concurrently": "^9.2.1",

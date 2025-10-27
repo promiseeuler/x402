@@ -4,6 +4,7 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ethers } from 'ethers';
 import { WalletManager } from '../wallet/WalletManager';
 import { getTokenConfig } from './networks';
 import {
@@ -347,5 +348,47 @@ export class X402Protocol {
    */
   clearSpendingHistory(): void {
     this.spendingTracker.clear();
+  }
+
+  /**
+   * Verify a payment transaction
+   */
+  async verifyPayment(transactionHash: string): Promise<{
+    verified: boolean;
+    amount: number;
+    currency: string;
+    network: NetworkName;
+  }> {
+    try {
+      // In a real implementation, this would verify the transaction on-chain
+      // For now, we'll simulate verification
+      const receipt = await this.config.walletManager.getTransactionReceipt(transactionHash);
+      
+      if (!receipt) {
+        return {
+          verified: false,
+          amount: 0,
+          currency: 'STT',
+          network: this.config.defaultNetwork
+        };
+      }
+
+      // Extract payment details from transaction receipt
+       // This is a simplified implementation
+       return {
+         verified: receipt.status === 1,
+         amount: parseFloat(ethers.formatEther(receipt.gasUsed * receipt.gasPrice)),
+         currency: 'STT',
+         network: this.config.defaultNetwork
+       };
+    } catch (error) {
+      this.log('Payment verification failed:', error);
+      return {
+        verified: false,
+        amount: 0,
+        currency: 'STT',
+        network: this.config.defaultNetwork
+      };
+    }
   }
 }

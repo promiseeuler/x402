@@ -23,13 +23,19 @@ export type {
   PaymentResponse,
   PaymentStatus,
   NetworkConfig,
-  TokenConfig
+  TokenConfig,
+  NetworkName
 } from './types';
 
+// Facilitator
+export { FacilitatorClient, AIFacilitator } from './facilitator';
+
+// Services
+export { OpenRouterAI } from './services';
+export type * from './services';
+
 // Utilities
-export { formatBalance, parseBalance } from './utils/formatters';
-export { validateAddress, validatePrivateKey, validateMnemonic } from './utils/validators';
-export { generateMnemonic, generatePrivateKey } from './utils/crypto';
+export * from './utils';
 
 // Constants
 export const X402_VERSION = '1.0.0';
@@ -205,12 +211,25 @@ export class BrowserStorage implements X402Storage {
   }
 }
 
+// Import for default export
+import { X402SDK } from './sdk/X402SDK';
+import type { X402SDKOptions as X402Config } from './sdk/X402SDK';
+import { WalletManager } from './wallet/WalletManager';
+import { EmbeddedWalletManager } from './wallet/EmbeddedWalletManager';
+import type { EmbeddedWalletConfig } from './wallet/EmbeddedWalletManager';
+import { X402Protocol } from './protocol/X402Protocol';
+import { FacilitatorClient, AIFacilitator } from './facilitator';
+import { OpenRouterAI } from './services';
+
 // Export everything as default for convenience
 export default {
   X402SDK,
   WalletManager,
   EmbeddedWalletManager,
   X402Protocol,
+  FacilitatorClient,
+  AIFacilitator,
+  OpenRouterAI,
   createX402SDK,
   createEmbeddedWallet,
   createAIProvider,
