@@ -36,8 +36,12 @@ async function initializeFacilitator() {
       openRouterApiKey: process.env.OPENROUTER_API_KEY || '',
       network: 'SOMNIA_TESTNET',
       spendingLimits: {
-        daily: 100,
-        perTransaction: 10
+        maxPerRequest: '10',
+        maxTotal: '100',
+        daily: '100',
+        windowSeconds: 86400,
+        currentSpending: '0',
+        windowStart: Date.now()
       },
       debug: true
     });
