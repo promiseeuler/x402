@@ -122,6 +122,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
   // Initialize wallet manager on mount
   useEffect(() => {
     const initializeWalletManager = async () => {
+      dispatch({ type: 'SET_LOADING', payload: true });
       try {
         const manager = new EmbeddedWalletManager({
           password: '', // Will be set when wallet is created/unlocked
@@ -131,10 +132,16 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
         });
         
         setWalletManager(manager);
-        dispatch({ type: 'SET_HAS_STORED_WALLET', payload: manager.hasStoredWallet() });
+        const hasStored = manager.hasStoredWallet();
+        dispatch({ type: 'SET_HAS_STORED_WALLET', payload: hasStored });
+        
+        // Always set initialized to true after wallet manager is ready
+        // The wallet is considered initialized regardless of lock state
         dispatch({ type: 'SET_INITIALIZED', payload: true });
       } catch (error) {
         dispatch({ type: 'SET_ERROR', payload: `Failed to initialize wallet manager: ${error}` });
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
 
@@ -180,6 +187,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
       dispatch({ type: 'SET_ADDRESS', payload: result.address });
       dispatch({ type: 'SET_LOCKED', payload: false });
       dispatch({ type: 'SET_HAS_STORED_WALLET', payload: true });
+      dispatch({ type: 'SET_INITIALIZED', payload: true });
       
       toast.success('Wallet created successfully!');
       await refreshBalance();
@@ -206,6 +214,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
       dispatch({ type: 'SET_ADDRESS', payload: address });
       dispatch({ type: 'SET_LOCKED', payload: false });
       dispatch({ type: 'SET_HAS_STORED_WALLET', payload: true });
+      dispatch({ type: 'SET_INITIALIZED', payload: true });
       
       toast.success('Wallet imported successfully!');
       await refreshBalance();
@@ -230,6 +239,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
       dispatch({ type: 'SET_ADDRESS', payload: address });
       dispatch({ type: 'SET_LOCKED', payload: false });
       dispatch({ type: 'SET_HAS_STORED_WALLET', payload: true });
+      dispatch({ type: 'SET_INITIALIZED', payload: true });
       
       toast.success('Wallet imported successfully!');
       await refreshBalance();
@@ -254,6 +264,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
       const address = walletManager.getAddress();
       dispatch({ type: 'SET_ADDRESS', payload: address });
       dispatch({ type: 'SET_LOCKED', payload: false });
+      dispatch({ type: 'SET_INITIALIZED', payload: true });
       
       toast.success('Wallet unlocked successfully!');
       await refreshBalance();

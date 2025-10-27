@@ -5,7 +5,7 @@
 
 import express from 'express';
 import cors from 'cors';
-import { AIFacilitator, EmbeddedWalletManager } from '../src';
+import { AIFacilitator, WalletManager } from '../src';
 import { config } from 'dotenv';
 import path from 'path';
 
@@ -25,11 +25,21 @@ let aiFacilitator: AIFacilitator;
 async function initializeFacilitator() {
   try {
     // Initialize wallet manager with environment variables
-    const walletManager = new EmbeddedWalletManager({
-      privateKey: process.env.FACILITATOR_PRIVATE_KEY || '',
-      network: 'SOMNIA_TESTNET',
-      password: process.env.WALLET_PASSWORD || 'default-password'
+    const walletManager = new WalletManager({
+      privateKey: process.env.FACILITATOR_PRIVATE_KEY,
+      customRpcUrls: {}
     });
+
+    // Create wallet from private key if provided, otherwise create random
+    const privateKey = process.env.FACILITATOR_PRIVATE_KEY;
+    
+    if (privateKey) {
+      await walletManager.createFromPrivateKey(privateKey);
+      console.log(`✅ Wallet created from private key: ${walletManager.getAddress()}`);
+    } else {
+      await walletManager.createRandom();
+      console.log(`✅ Random wallet created: ${walletManager.getAddress()}`);
+    }
 
     // Initialize AI Facilitator
     aiFacilitator = new AIFacilitator({
@@ -127,13 +137,33 @@ app.post('/api/estimate', async (req, res) => {
 // Process AI request with payment
 app.post('/api/request', async (req, res) => {
   try {
-    const { model, prompt, maxTokens, temperature, userId, metadata } = req.body;
+    const { model, prompt, maxTokens, temperature, userId, metadata, paymentHash } = req.body;
     
     if (!model || !prompt) {
       return res.status(400).json({ 
         success: false, 
         error: 'Model and prompt are required' 
       });
+    }
+
+    // Verify payment if paymentHash is provided
+    if (paymentHash) {
+      try {
+        const verification = await aiFacilitator.verifyPayment(paymentHash);
+        if (!verification.verified) {
+          return res.status(402).json({ 
+            success: false, 
+            error: 'Payment verification failed' 
+          });
+        }
+        console.log('✅ Payment verified:', paymentHash);
+      } catch (verifyError: any) {
+        console.error('❌ Payment verification error:', verifyError.message);
+        return res.status(402).json({ 
+          success: false, 
+          error: 'Payment verification failed: ' + verifyError.message 
+        });
+      }
     }
 
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -145,7 +175,8 @@ app.post('/api/request', async (req, res) => {
       maxTokens,
       temperature,
       userId,
-      metadata
+      metadata,
+      paymentHash
     };
 
     const response = await aiFacilitator.processAIRequest(aiRequest);
@@ -195,6 +226,16 @@ app.get('/api/request/:id/status', (req, res) => {
     }
 
     return res.json(response);
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get facilitator wallet address
+app.get('/api/wallet-address', async (_req, res) => {
+  try {
+    const address = await aiFacilitator.getWalletAddress();
+    return res.json({ success: true, address });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }

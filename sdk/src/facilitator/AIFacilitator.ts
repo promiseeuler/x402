@@ -229,6 +229,13 @@ export class AIFacilitator extends EventEmitter {
   }
 
   /**
+   * Get the facilitator wallet address
+   */
+  async getWalletAddress(): Promise<string> {
+    return this.config.walletManager.getAddress();
+  }
+
+  /**
    * Get the current configuration
    */
   getConfig(): AIFacilitatorConfig {

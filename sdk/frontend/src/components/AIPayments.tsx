@@ -172,7 +172,7 @@ const paymentSchema = yup.object({
 });
 
 export const AIPayments: React.FC = () => {
-  const { state } = useWallet();
+  const { state, walletManager } = useWallet();
   const [currentTab, setCurrentTab] = useState(0);
   const [providers] = useState<AIProvider[]>(openRouterModels);
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([]);
@@ -191,20 +191,15 @@ export const AIPayments: React.FC = () => {
 
   // Initialize services when wallet is connected
   useEffect(() => {
-    if (state.isInitialized && state.address) {
+    if (state.isInitialized && state.address && !state.isLocked && walletManager) {
       try {
-        // Initialize wallet manager with proper typing
-        const walletManager = new (EmbeddedWalletManager as any)({
-          password: 'default-password'
-        });
-
-        // Initialize X402 protocol with proper typing
+        // Initialize X402 protocol with the wallet manager from context
         const protocol = new (X402Protocol as any)({
           walletManager,
           defaultNetwork: 'SOMNIA_TESTNET' as any,
           spendingLimits: {
-            maxPerRequest: '1',
-            maxTotal: '10',
+            maxPerRequest: '10',
+            maxTotal: '100',
             windowSeconds: 86400,
             currentSpending: '0',
             windowStart: Date.now()
@@ -212,13 +207,16 @@ export const AIPayments: React.FC = () => {
         });
 
         setX402Protocol(protocol);
+        console.log('✅ X402 Protocol initialized successfully');
         // Note: OpenRouterAI service is handled by the facilitator server
       } catch (error) {
         console.error('Failed to initialize AI services:', error);
         toast.error('Failed to initialize AI services');
       }
+    } else {
+      setX402Protocol(null);
     }
-  }, [state.isInitialized, state.address]);
+  }, [state.isInitialized, state.address, state.isLocked, walletManager]);
 
   const paymentForm = useForm({
     resolver: yupResolver(paymentSchema),
@@ -295,9 +293,39 @@ export const AIPayments: React.FC = () => {
       }
 
       const costEstimate = await estimateResponse.json();
-      const totalCost = calculateTotalCost(costEstimate.cost);
+      const totalCost = calculateTotalCost(costEstimate.cost.totalCost);
 
-      // Step 2: Make AI request with payment through facilitator
+      // Validate and format the amount properly for ethers.js
+      if (!totalCost || totalCost <= 0 || !isFinite(totalCost)) {
+        throw new globalThis.Error('Invalid payment amount calculated');
+      }
+
+      // Format amount to avoid scientific notation and ensure proper decimal format
+      const formattedAmount = totalCost.toFixed(18).replace(/\.?0+$/, '');
+
+      // Step 2: Get facilitator wallet address
+      const addressResponse = await fetch(`${facilitatorConfig.baseUrl}/api/wallet-address`);
+      if (!addressResponse.ok) {
+        throw new globalThis.Error('Failed to get facilitator wallet address');
+      }
+      const addressData = await addressResponse.json();
+      
+      // Step 3: Make payment through X402 protocol
+      const paymentResult = await x402Protocol.makePayment({
+        amount: formattedAmount,
+        recipient: addressData.address, // Facilitator wallet address
+        metadata: {
+          service: 'ai-request',
+          model: selectedProvider.id,
+          requestId: transaction.id
+        }
+      });
+
+      if (!paymentResult.success) {
+        throw new globalThis.Error(`Payment failed: ${paymentResult.error}`);
+      }
+
+      // Step 4: Make AI request after successful payment
       const requestResponse = await fetch(`${facilitatorConfig.baseUrl}/api/request`, {
         method: 'POST',
         headers: {
@@ -307,7 +335,7 @@ export const AIPayments: React.FC = () => {
           model: selectedProvider.id,
           prompt: data.requestData,
           maxTokens: 1000,
-          paymentAmount: totalCost
+          paymentHash: paymentResult.transactionHash
         })
       });
 
@@ -324,8 +352,8 @@ export const AIPayments: React.FC = () => {
               ...tx, 
               status: 'completed', 
               amount: totalCost,
-              txHash: response.transactionHash || `0x${Math.random().toString(16).substr(2, 64)}`,
-              responseData: { success: true, content: response.content || response.message }
+              txHash: paymentResult.transactionHash,
+              responseData: { success: true, content: response.response?.content || response.response?.message || 'AI request completed successfully' }
             }
           : tx
       ));

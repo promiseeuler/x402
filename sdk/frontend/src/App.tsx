@@ -159,6 +159,56 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Main App Layout
 const AppLayout: React.FC = () => {
+  const { state } = useWallet();
+
+  // Show loading screen while wallet manager is initializing
+  if (state.isLoading && !state.isInitialized) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 2,
+        }}
+      >
+        <Box sx={{ textAlign: 'center', color: 'white' }}>
+          <Box sx={{ mb: 2 }}>
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 40 40"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ animation: 'spin 1s linear infinite' }}
+            >
+              <circle
+                cx="20"
+                cy="20"
+                r="18"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray="28 28"
+                fill="none"
+              />
+            </svg>
+          </Box>
+          <style>
+            {`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}
+          </style>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{

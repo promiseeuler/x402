@@ -144,6 +144,22 @@ export class WalletManager {
     transactionConfig?: TransactionConfig
   ): Promise<TransactionResponse> {
     try {
+      // Validate amount format
+      if (!amount || amount.trim() === '') {
+        throw new Error('Amount cannot be empty');
+      }
+      
+      // Check if amount is a valid number string
+      const numAmount = parseFloat(amount);
+      if (!isFinite(numAmount) || numAmount <= 0) {
+        throw new Error(`Invalid amount: ${amount}`);
+      }
+      
+      // Ensure amount doesn't contain scientific notation
+      if (amount.includes('e') || amount.includes('E')) {
+        throw new Error(`Amount cannot be in scientific notation: ${amount}`);
+      }
+
       const wallet = this.getConnectedWallet(network);
       const networkConfig = getNetworkConfig(network);
       
@@ -171,6 +187,22 @@ export class WalletManager {
     transactionConfig?: TransactionConfig
   ): Promise<TransactionResponse> {
     try {
+      // Validate amount format
+      if (!amount || amount.trim() === '') {
+        throw new Error('Amount cannot be empty');
+      }
+      
+      // Check if amount is a valid number string
+      const numAmount = parseFloat(amount);
+      if (!isFinite(numAmount) || numAmount <= 0) {
+        throw new Error(`Invalid amount: ${amount}`);
+      }
+      
+      // Ensure amount doesn't contain scientific notation
+      if (amount.includes('e') || amount.includes('E')) {
+        throw new Error(`Amount cannot be in scientific notation: ${amount}`);
+      }
+
       const wallet = this.getConnectedWallet(network);
       
       const tokenContract = new ethers.Contract(

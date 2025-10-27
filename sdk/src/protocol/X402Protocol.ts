@@ -351,6 +351,61 @@ export class X402Protocol {
   }
 
   /**
+   * Make a direct payment
+   */
+  async makePayment(params: {
+    amount: string;
+    recipient: string;
+    metadata?: any;
+    network?: NetworkName;
+  }): Promise<{
+    success: boolean;
+    transactionHash?: string;
+    error?: string;
+  }> {
+    try {
+      const network = params.network || this.config.defaultNetwork;
+      
+      // Check spending limits
+      const amountNum = parseFloat(params.amount);
+      if (this.config.spendingLimits) {
+        const currentSpending = this.getCurrentSpending(network, 'STT');
+        if (currentSpending + amountNum > parseFloat(this.config.spendingLimits.maxTotal)) {
+          return {
+            success: false,
+            error: 'Spending limit exceeded'
+          };
+        }
+      }
+
+      // Send transaction
+      const txResponse = await this.config.walletManager.sendTransaction(
+        network,
+        params.recipient,
+        params.amount
+      );
+
+      // Track spending
+      const spending = this.spendingTracker.get(`${network}:STT`) || [];
+      spending.push({ amount: amountNum, timestamp: Date.now() });
+      this.spendingTracker.set(`${network}:STT`, spending);
+
+      this.log(`Payment successful: ${txResponse.hash}`);
+
+      return {
+        success: true,
+        transactionHash: txResponse.hash
+      };
+    } catch (error: any) {
+      this.log('Payment failed:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * Verify a payment transaction
    */
   async verifyPayment(transactionHash: string): Promise<{
