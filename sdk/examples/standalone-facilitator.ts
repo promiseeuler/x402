@@ -1,5 +1,5 @@
-import express from 'express';
-import cors from 'cors';
+import * as express from 'express';
+import * as cors from 'cors';
 import { X402SDK } from '../src/sdk/X402SDK';
 
 const app = express();

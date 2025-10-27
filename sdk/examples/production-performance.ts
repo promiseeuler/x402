@@ -181,7 +181,7 @@ class PerformanceTester {
       console.log(`\n🔄 Batch ${batch + 1}/${batchCount} - Processing ${batchSize} transactions...`);
       
       // Create batch of concurrent transactions
-      const batchPromises = [];
+      const batchPromises: Promise<TransactionResult>[] = [];
       for (let i = batchStartIndex; i < batchEndIndex; i++) {
         const transactionId = `tx_${testName}_${i}`;
         const promise = this.executeTransaction(transactionId, config);
@@ -245,7 +245,7 @@ class PerformanceTester {
     
     const transactionsPerSecond = (successfulTransactions.length / totalDuration) * 1000;
     
-    const totalGasUsed = successfulTransactions.reduce((sum, tx) => sum + (tx.gasUsed || 0n), 0n);
+    const totalGasUsed = successfulTransactions.reduce((sum, tx) => sum + (tx.gasUsed || BigInt(0)), BigInt(0));
     const averageGasUsed = successfulTransactions.length > 0 
       ? Number(totalGasUsed) / successfulTransactions.length 
       : 0;
@@ -371,7 +371,7 @@ class PerformanceTester {
       totalFailed: this.results.reduce((sum, r) => sum + r.failedTransactions, 0),
       averageSuccessRate: this.results.reduce((sum, r) => sum + r.successRate, 0) / this.results.length,
       averageThroughput: this.results.reduce((sum, r) => sum + r.transactionsPerSecond, 0) / this.results.length,
-      totalGasUsed: this.results.reduce((sum, r) => sum + r.totalGasUsed, 0n),
+      totalGasUsed: this.results.reduce((sum, r) => sum + r.totalGasUsed, BigInt(0)),
       totalDuration: this.results.reduce((sum, r) => sum + r.duration, 0)
     };
     

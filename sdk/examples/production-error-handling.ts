@@ -320,7 +320,7 @@ class ProductionErrorHandler {
     const numChunks = Number(paymentData.amount / maxChunkSize) + (paymentData.amount % maxChunkSize > 0n ? 1 : 0);
     console.log(`🔪 Splitting payment into ${numChunks} chunks`);
     
-    const results = [];
+    const results: any[] = [];
     let remainingAmount = paymentData.amount;
     
     for (let i = 0; i < numChunks; i++) {

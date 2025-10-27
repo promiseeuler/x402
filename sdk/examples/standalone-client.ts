@@ -1,4 +1,4 @@
-import express from 'express';
+import * as express from 'express';
 import axios from 'axios';
 import { X402SDK } from '../src/index';
 

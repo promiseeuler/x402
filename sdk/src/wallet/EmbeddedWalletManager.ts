@@ -10,6 +10,8 @@ import { NetworkName } from '../types/network';
 export interface EmbeddedWalletConfig {
   /** Password for wallet encryption */
   password: string;
+  /** Network name */
+  network?: string;
   /** Storage key prefix for localStorage */
   storagePrefix?: string;
   /** Auto-save wallet to storage */
@@ -292,7 +294,7 @@ export class EmbeddedWalletManager extends WalletManager {
   /**
    * Override parent methods to check lock status
    */
-  getAddress(): string {
+  override getAddress(): string {
     this.ensureUnlocked();
     return super.getAddress();
   }

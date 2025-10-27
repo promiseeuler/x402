@@ -302,7 +302,7 @@ class ProductionMonitor {
     
     // Calculate total volume
     const volumeMetrics = this.metrics.filter(m => m.metric === 'transaction_volume' && m.tags?.status === 'success');
-    const totalVolume = volumeMetrics.reduce((sum, m) => sum + BigInt(Math.round(m.value * 1e18)), 0n);
+    const totalVolume = volumeMetrics.reduce((sum, m) => sum + BigInt(Math.round(m.value * 1e18)), BigInt(0));
     
     // Calculate average gas used
     const gasMetrics = this.metrics.filter(m => m.metric === 'gas_used' && m.tags?.status === 'success');

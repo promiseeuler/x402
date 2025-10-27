@@ -27,6 +27,9 @@ export type {
   NetworkName
 } from './types';
 
+// Export all types
+export * from './types';
+
 // Facilitator
 export { FacilitatorClient, AIFacilitator } from './facilitator';
 

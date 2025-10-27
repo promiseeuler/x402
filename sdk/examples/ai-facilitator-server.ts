@@ -26,7 +26,8 @@ async function initializeFacilitator() {
     // Initialize wallet manager with environment variables
     const walletManager = new EmbeddedWalletManager({
       privateKey: process.env.FACILITATOR_PRIVATE_KEY || '',
-      network: 'SOMNIA_TESTNET'
+      network: 'SOMNIA_TESTNET',
+      password: process.env.WALLET_PASSWORD || 'default-password'
     });
 
     // Initialize AI Facilitator

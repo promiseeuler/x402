@@ -5,7 +5,7 @@
 
 import { EventEmitter } from 'events';
 import { X402Protocol } from '../protocol/X402Protocol';
-import { OpenRouterAI, AIRequest, AIResponse } from '../services/OpenRouterAI';
+import { OpenRouterAI } from '../services/OpenRouterAI';
 import { WalletManager } from '../wallet/WalletManager';
 import { NetworkName } from '../types/network';
 
@@ -217,6 +217,13 @@ export class AIFacilitator extends EventEmitter {
       completedRequests: this.completedRequests.size,
       totalRevenue
     };
+  }
+
+  /**
+   * Get the current configuration
+   */
+  getConfig(): AIFacilitatorConfig {
+    return this.config;
   }
 
   /**

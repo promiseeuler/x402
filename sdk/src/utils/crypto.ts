@@ -99,7 +99,7 @@ export function encryptData(data: string, password: string): string {
     const iv = crypto.randomBytes(12);
     
     // Create cipher
-    const cipher = crypto.createCipheriv('aes-256-gcm', key, Buffer.alloc(12));
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
     cipher.setAAD(Buffer.from('x402-wallet', 'utf8'));
     
     // Encrypt data
@@ -143,7 +143,7 @@ export function decryptData(encryptedData: string, password: string): string {
     const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256');
     
     // Create decipher
-    const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.alloc(12));
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     decipher.setAAD(Buffer.from('x402-wallet', 'utf8'));
     decipher.setAuthTag(authTag);
     

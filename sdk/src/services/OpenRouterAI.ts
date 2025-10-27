@@ -3,7 +3,7 @@
  * Handles AI requests through OpenRouter API with automatic payment processing
  */
 
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { X402Protocol } from '../protocol/X402Protocol';
 import { NetworkName } from '../types/network';
 
@@ -111,12 +111,7 @@ export class OpenRouterAI {
    * Make a paid AI request through OpenRouter
    */
   async makeRequest(request: AIRequest): Promise<AIResponse> {
-    const requestId = `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
     try {
-      // Calculate payment details
-      const paymentDetails = this.calculateCost(request);
-      
       // Prepare the OpenRouter request
       const openRouterRequest = {
         model: request.model || this.config.defaultModel,
@@ -131,7 +126,7 @@ export class OpenRouterAI {
       };
 
       // Make the request through X402 protocol
-      // This will handle the payment automatically
+      // This will handle the payment automatically based on 402 responses
       const response = await this.x402Protocol.request({
         url: `${this.baseUrl}/chat/completions`,
         method: 'POST',
@@ -146,7 +141,6 @@ export class OpenRouterAI {
 
       // Extract the AI response
       const aiResponseText = response.data?.choices?.[0]?.message?.content || 'No response received';
-      const tokensUsed = response.data?.usage?.total_tokens;
 
       return {
         content: aiResponseText,

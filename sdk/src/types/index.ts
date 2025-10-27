@@ -23,6 +23,8 @@ export * from './ai';
 // Storage types
 export * from './storage';
 
+// Force IDE refresh
+
 // SDK configuration types
 export interface X402SDKConfig {
   /** Default network to use */
