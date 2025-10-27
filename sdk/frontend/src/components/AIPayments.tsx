@@ -214,7 +214,7 @@ export const AIPayments: React.FC = () => {
         const aiService = new OpenRouterAI({
           apiKey: process.env.REACT_APP_OPENROUTER_API_KEY || '',
           defaultModel: 'anthropic/claude-3-haiku'
-        }, protocol);
+        });
 
         setX402Protocol(protocol);
         setOpenRouterAI(aiService);

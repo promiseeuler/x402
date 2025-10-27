@@ -7,9 +7,10 @@ import express from 'express';
 import cors from 'cors';
 import { AIFacilitator, EmbeddedWalletManager } from '../src';
 import { config } from 'dotenv';
+import path from 'path';
 
-// Load environment variables
-config();
+// Load environment variables from examples/.env
+config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3001;

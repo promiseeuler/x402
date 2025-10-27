@@ -157,28 +157,7 @@ export class OpenRouterAI {
       };
 
     } catch (error: any) {
-      console.log(`❌ OpenRouter API error:`, {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message,
-        code: error.code
-      });
-
-      // Handle different types of errors
-      if (error.code === 'INSUFFICIENT_BALANCE') {
-        throw new Error('Insufficient balance to make AI request. Please add funds to your wallet.');
-      } else if (error.code === 'PAYMENT_FAILED') {
-        throw new Error('Payment failed. Please check your wallet and try again.');
-      } else if (error.code === 'SPENDING_LIMIT_EXCEEDED') {
-        throw new Error('Spending limit exceeded. Please adjust your limits or wait for the next period.');
-      } else if (error.response?.status === 401) {
-        throw new Error('Invalid OpenRouter API key. Please check your configuration.');
-      } else if (error.response?.status === 429) {
-        throw new Error('Rate limit exceeded. Please wait before making another request.');
-      } else {
-        throw new Error(`AI request failed: ${error.message || 'Unknown error'}`);
-      }
+      throw new Error(`OpenRouter API request failed: ${error.response?.data?.error?.message || error.message}`);
     }
   }
 
