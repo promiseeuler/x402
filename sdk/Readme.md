@@ -210,6 +210,39 @@ try {
 }
 ```
 
+## Frontend Components
+
+### QRCodeModal
+
+A React component for displaying QR codes in a modal dialog, commonly used for wallet addresses and other data sharing.
+
+```typescript
+import { QRCodeModal } from './QRCodeModal';
+
+// Usage example
+<QRCodeModal
+  open={showQRCode}
+  onClose={() => setShowQRCode(false)}
+  title="Wallet Address"
+  data={walletAddress}
+  description="Scan this QR code to get the wallet address"
+/>
+```
+
+**Props:**
+- `open: boolean` - Controls modal visibility
+- `onClose: () => void` - Callback when modal is closed
+- `title: string` - Modal title
+- `data: string` - Data to display (address, text, etc.)
+- `description?: string` - Optional description text
+
+**Features:**
+- Material-UI based modal dialog
+- Responsive design with centered QR code placeholder
+- Monospace font for data display
+- Copy-friendly text formatting
+- Close button in header
+
 ## Examples
 
 See the `examples/` directory for complete usage examples:
