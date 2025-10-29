@@ -276,20 +276,39 @@ export const AIPayments: React.FC = () => {
       setTransactions(prev => [transaction, ...prev]);
 
       // Step 1: Estimate cost through facilitator
-      const estimateResponse = await fetch(`${facilitatorConfig.baseUrl}/api/estimate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: selectedProvider.id,
-          prompt: data.requestData,
-          maxTokens: 1000
-        })
+      console.log('🔍 Making API request to:', `${facilitatorConfig.baseUrl}/api/estimate`);
+      console.log('📦 Request payload:', {
+        model: selectedProvider.id,
+        prompt: data.requestData,
+        maxTokens: 1000
       });
+      
+      let estimateResponse;
+      try {
+        estimateResponse = await fetch(`${facilitatorConfig.baseUrl}/api/estimate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: selectedProvider.id,
+            prompt: data.requestData,
+            maxTokens: 1000
+          })
+        });
+        
+        console.log('✅ API response status:', estimateResponse.status);
+        console.log('📋 Response headers:', Object.fromEntries(estimateResponse.headers.entries()));
+        
+      } catch (fetchError) {
+        console.error('❌ Fetch error:', fetchError);
+        throw new globalThis.Error(`Network error during cost estimation: ${fetchError.message}`);
+      }
 
       if (!estimateResponse.ok) {
-        throw new globalThis.Error('Failed to estimate cost');
+        const errorText = await estimateResponse.text();
+        console.error('❌ API error response:', errorText);
+        throw new globalThis.Error(`Failed to estimate cost: ${estimateResponse.status} ${estimateResponse.statusText} - ${errorText}`);
       }
 
       const costEstimate = await estimateResponse.json();
@@ -301,7 +320,63 @@ export const AIPayments: React.FC = () => {
       }
 
       // Format amount to avoid scientific notation and ensure proper decimal format
-      const formattedAmount = totalCost.toFixed(18).replace(/\.?0+$/, '');
+      // Use a more robust approach to prevent scientific notation
+      let formattedAmount: string;
+      if (totalCost < 1e-15) {
+        // For extremely small numbers, use a minimum threshold
+        formattedAmount = '0.000000000000001';
+      } else {
+        // Convert to string without scientific notation
+        formattedAmount = totalCost.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 18,
+          useGrouping: false
+        });
+        
+        // Fallback: if toLocaleString still produces scientific notation
+        if (formattedAmount.includes('e') || formattedAmount.includes('E')) {
+          // Manual conversion for very small numbers
+          const str = totalCost.toString();
+          if (str.includes('e-')) {
+            const [base, exp] = str.split('e-');
+            const decimals = parseInt(exp);
+            const baseNum = parseFloat(base);
+            formattedAmount = baseNum.toFixed(decimals + base.split('.')[1]?.length || 0);
+          } else {
+            formattedAmount = totalCost.toFixed(18).replace(/\.?0+$/, '');
+          }
+        }
+      }
+      
+      // Ensure we don't have an empty string
+      if (!formattedAmount || formattedAmount === '' || formattedAmount === '0.') {
+        formattedAmount = '0';
+      }
+      
+      console.log('Payment details:', {
+        originalCost: costEstimate.cost.totalCost,
+        calculatedTotalCost: totalCost,
+        formattedAmount: formattedAmount
+      });
+      
+      // Check wallet balance before payment
+      if (x402Protocol && walletManager) {
+        try {
+          const currentBalance = await walletManager.getBalance(state.network);
+          console.log('Current wallet balance:', currentBalance, 'STT');
+          console.log('Required amount:', formattedAmount, 'STT');
+          
+          const balanceNum = parseFloat(currentBalance);
+          const requiredNum = parseFloat(formattedAmount);
+          
+          if (balanceNum < requiredNum) {
+            throw new globalThis.Error(`Insufficient balance. Required: ${formattedAmount} STT, Available: ${currentBalance} STT`);
+          }
+        } catch (balanceError: any) {
+          console.error('Balance check error:', balanceError);
+          throw new globalThis.Error(`Balance check failed: ${balanceError?.message || 'Unknown error'}`);
+        }
+      }
 
       // Step 2: Get facilitator wallet address
       const addressResponse = await fetch(`${facilitatorConfig.baseUrl}/api/wallet-address`);

@@ -7,6 +7,7 @@ import React, { createContext, useContext, useReducer, useEffect, ReactNode } fr
 import { EmbeddedWalletManager, WalletBackup } from '../../../src/wallet/EmbeddedWalletManager';
 import { X402SDK } from '../../../src/sdk/X402SDK';
 import { NetworkName } from '../../../src/types/network';
+import { facilitatorConfig } from '../config/facilitator.config';
 import toast from 'react-hot-toast';
 
 export interface WalletState {
@@ -159,7 +160,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({
               privateKey: walletManager.getPrivateKey()
             },
             facilitator: {
-              baseUrl: 'http://localhost:3003'
+              baseUrl: facilitatorConfig.baseUrl
             }
           });
           

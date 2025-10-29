@@ -11,11 +11,8 @@ export interface FacilitatorConfig {
 
 // Helper function to safely get environment variables
 const getEnvVar = (key: string, defaultValue: string): string => {
-  if (typeof window !== 'undefined') {
-    // Browser environment - use default values
-    return defaultValue;
-  }
-  // Node environment - use process.env
+  // In React, environment variables are available via process.env even in browser
+  // Vite/Create React App injects them at build time
   return process.env[key] || defaultValue;
 };
 
@@ -34,6 +31,8 @@ export const facilitatorConfig: FacilitatorConfig = {
     'openai/gpt-4': parseFloat(getEnvVar('REACT_APP_PRICE_GPT4', '0.005'))
   }
 };
+
+
 
 // Helper function to get total cost including facilitator fee
 export const calculateTotalCost = (baseCost: number): number => {

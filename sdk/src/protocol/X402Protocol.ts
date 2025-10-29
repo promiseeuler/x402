@@ -366,8 +366,30 @@ export class X402Protocol {
     try {
       const network = params.network || this.config.defaultNetwork;
       
+      this.log('makePayment called with params:', {
+        amount: params.amount,
+        recipient: params.recipient,
+        network: network,
+        metadata: params.metadata
+      });
+      
+      // Validate amount format
+      if (!params.amount || params.amount.trim() === '') {
+        return {
+          success: false,
+          error: 'Amount cannot be empty'
+        };
+      }
+      
       // Check spending limits
       const amountNum = parseFloat(params.amount);
+      if (!isFinite(amountNum) || amountNum <= 0) {
+        return {
+          success: false,
+          error: `Invalid amount: ${params.amount}`
+        };
+      }
+      
       if (this.config.spendingLimits) {
         const currentSpending = this.getCurrentSpending(network, 'STT');
         if (currentSpending + amountNum > parseFloat(this.config.spendingLimits.maxTotal)) {
@@ -378,6 +400,21 @@ export class X402Protocol {
         }
       }
 
+      // Check wallet balance before attempting transaction
+      const hasSufficientBalance = await this.config.walletManager.hasSufficientBalance(
+        network,
+        params.amount
+      );
+      
+      if (!hasSufficientBalance) {
+        return {
+          success: false,
+          error: 'Insufficient balance for payment'
+        };
+      }
+
+      this.log('Sending transaction with amount:', params.amount);
+      
       // Send transaction
       const txResponse = await this.config.walletManager.sendTransaction(
         network,

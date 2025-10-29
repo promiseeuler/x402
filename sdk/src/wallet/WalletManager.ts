@@ -144,6 +144,13 @@ export class WalletManager {
     transactionConfig?: TransactionConfig
   ): Promise<TransactionResponse> {
     try {
+      console.log('WalletManager.sendTransaction called with:', {
+        network,
+        to,
+        amount,
+        amountType: typeof amount
+      });
+      
       // Validate amount format
       if (!amount || amount.trim() === '') {
         throw new Error('Amount cannot be empty');
@@ -163,12 +170,18 @@ export class WalletManager {
       const wallet = this.getConnectedWallet(network);
       const networkConfig = getNetworkConfig(network);
       
+      console.log('About to parse amount with ethers.parseUnits:', {
+        amount,
+        decimals: networkConfig.nativeToken.decimals
+      });
+      
       const tx: TransactionRequest = {
         to,
         value: ethers.parseUnits(amount, networkConfig.nativeToken.decimals),
         ...this.buildTransactionConfig(transactionConfig)
       };
 
+      console.log('Transaction created successfully:', tx);
       return await wallet.sendTransaction(tx);
     } catch (error) {
       throw this.createNetworkError(NetworkErrorCode.TRANSACTION_FAILED, `Transaction failed: ${error}`, network);
