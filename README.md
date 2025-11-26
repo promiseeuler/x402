@@ -2,18 +2,18 @@
 
 A payment infrastructure for AI services and digital content using HTTP 402 protocol with blockchain settlement.
 
-## 📁 Project Structure
+##  Project Structure
 
-### 🔧 `sdk/`
+###  `sdk/`
 Core X402 SDK with embedded wallet management, multi-chain support, and React frontend interface.
 
-### 🏦 `facilitator-demo/`
+###  `facilitator-demo/`
 Complete demonstration of X402 facilitator workflow with servers, client examples, and testing interface.
 
-### 🎮 `minigame-example/`
+###  `minigame-example/`
 Treasure hunt game showing real-world X402 integration with paid API access.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # SDK Development
@@ -26,7 +26,7 @@ cd facilitator-demo && node scripts/setup.js && node scripts/start-all.js
 cd minigame-example && npm install && npm start
 ```
 
-## 📚 Documentation
+##  Documentation
 
 - [SDK Guide](./sdk/Readme.md)
 - [Facilitator Demo](./facilitator-demo/README.md)
